@@ -1,8 +1,9 @@
 import React from 'react';
 
+
 const RestaurantCard = ({ name, address, rating, image }) => {
   return (
-    <div className="w-72 h-72 m-2 shadow-lg rounded overflow-hidden">
+    <div className="w-72 h-72 m-2 shadow-lg rounded overflow-hidden transition ease-in-out delay-150 hover:text-red-500 hover:scale-110 hover:border-2 hover:rounded border-red-500">
       <div className="relative">
         <img
           src={image || 'assets/restaurant-placeholder.jpg'}

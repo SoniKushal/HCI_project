@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FaClipboardList, FaEnvelope, FaChartPie, FaBox, FaCog, FaSignOutAlt } from 'react-icons/fa'; // Import necessary icons
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faShop } from '@fortawesome/free-solid-svg-icons'
 
 const Sidebar = () => {
   const location = useLocation(); // Get current location

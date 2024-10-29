@@ -9,6 +9,7 @@ import Bookings from './pages/Bookings';
 import Dashboard from './pages/OwnerDashboard';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import AddRestaurantForm from './components/AddRestaurantForm';
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/ownerdashboard" element={<Dashboard />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+        <Route path="/addrestaurant" element={<AddRestaurantForm />} />
 
 
       </Routes>

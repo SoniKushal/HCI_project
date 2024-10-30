@@ -5,37 +5,39 @@ const randomstring = require('randomstring');
 const bcrypt = require('bcrypt');
 const Token = require('../model/tokenmodel');
 require('dotenv').config();
+
 const signup_post = async (req, res) => {
     try {
-        const { name, email, password, confirmPassword, isOwner } = req.body;
-        const user = await usermodel.findOne({ email: email });
-        if (user) {
-            return res.status(409).json({ message: "User already exists" })
-        }
-        if (password !== confirmPassword) {
-            return res.status(401).json({ message: "Password not matching" })
-        }
-
-        const newUser = new usermodel({
-            name: name,
-            email: email,
-            password: password,
-            isOwner: isOwner
-        })
-        await newUser.save();
-        res.status(200).json({ message: "User created successfully", userId: newUser._id, owner: newUser.isOwner })
-
+      const { name, phone, email, password, isOwner } = req.body;
+  
+      const user = await usermodel.findOne({ email });
+      if (user) {
+        return res.status(409).json({ message: "User already exists" });
+      }
+  
+      const newUser = new usermodel({
+        name,
+        phone,
+        email,
+        password, 
+        isOwner
+      });
+  
+      await newUser.save();
+      res.status(200).json({ message: "User created successfully", userId: newUser._id, owner: newUser.isOwner });
+  
     } catch (error) {
-        console.log(error.message);
-        res.status(400).json({ message: error.message });
+      console.log(error.message);
+      res.status(400).json({ message: error.message });
     }
+  };
+  
 
-}
 
 const login_post = async (req, res) => {
     try {
         const { email, password, isOwner } = req.body;
-        const data = await usermodel.findOne({ email: email })
+        const data = await usermodel.findOne({ email: email });
         if (!data) {
             return res.status(401).json({ message: "Enter Valid Email" });
         }
@@ -48,16 +50,14 @@ const login_post = async (req, res) => {
         }
         const token = jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
             expiresIn: "24h"
-        })
-        //res.setHeader('Authorization', `Bearer ${token}`);
+        });
         res.setHeader('Authorization', 'Bearer ' + token);
-        res.status(200).json({ message: "User logged in successfully", userId: data._id, token: token })
+        res.status(200).json({ message: "User logged in successfully", userId: data._id, token: token });
     } catch (error) {
         console.log(error.message);
         res.status(400).json({ message: error.message });
     }
-
-}
+};
 
 const sendresetpasswordmail = async (name, email, token) => {
     try {

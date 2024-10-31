@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 
 
-const AddRestaurantForm = ({ onClose }) => {
-  const [name, setName] = useState('');
-  const [location, setLocation] = useState('');
-  const [ambienceImages, setAmbienceImages] = useState([]);
-  const [menuImages, setMenuImages] = useState([]);
-  const [capacity, setCapacity] = useState({ twoPerson: 0, fourPerson: 0, sixPerson: 0 });
-  const [cuisines, setCuisines] = useState([]);
-  const [openingHours, setOpeningHours] = useState({ openHour: '00', openMinute: '00', closeHour: '00', closeMinute: '00' });
-  const [phoneNumber, setPhoneNumber] = useState('');
+const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
+  const [name, setName] = useState(restaurantData.name || '');
+  const [location, setLocation] = useState(restaurantData.location || '');
+  const [ambienceImages, setAmbienceImages] = useState(restaurantData.ambienceImages || []);
+  const [menuImages, setMenuImages] = useState(restaurantData.menuImages || []);
+  const [capacity, setCapacity] = useState(restaurantData.capacity || { twoPerson: 0, fourPerson: 0, sixPerson: 0 });
+  const [cuisines, setCuisines] = useState(restaurantData.cuisines || []);
+  const [openingHours, setOpeningHours] = useState(restaurantData.openingHours || { openHour: '00', openMinute: '00', closeHour: '00', closeMinute: '00' });
+  const [phoneNumber, setPhoneNumber] = useState(restaurantData.phoneNumber || '');
   const [showPreview, setShowPreview] = useState(false); // State to control preview visibility
   const [showPreview1, setShowPreview1] = useState(false); // State to control preview visibility
 
@@ -86,7 +86,7 @@ const AddRestaurantForm = ({ onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 mt-4 flex items-center justify-center bg-black bg-opacity-60 h-[100vh] overflow-y-auto">
+    <div className="fixed z-40 inset-0 mt-4 flex items-center justify-center bg-black bg-opacity-60 h-[100vh] overflow-y-auto">
       <form 
         onSubmit={handleSubmit} 
         className="bg-slate-50 rounded-lg shadow-lg p-6 w-11/12 md:w-3/4 lg:w-1/2"
@@ -139,34 +139,34 @@ const AddRestaurantForm = ({ onClose }) => {
                 {showPreview ? 'Hide Uploaded Images' : 'Show Uploaded Images'}
                 </button>
             )}
-
             {/* Image Preview Section */}
             {showPreview && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full h-[80vh] overflow-y-auto p-6 relative">
-                        <button
-                            type="button"
-                            onClick={() => setShowPreview(false)}
-                            className="absolute top-2 right-2 text-gray-600 hover:scale-110 hover:delay-100 hover:text-red-600"
-                        >
-                            ✕
-                        </button>
-                        <h2 className="mb-2 text-xl font-semibold">Uploaded Images Preview:</h2>
-                        <ul className="grid grid-cols-3 gap-4">
-                            {ambienceImages.map((file, index) => (
-                                <li key={index} className="text-sm text-gray-600">
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        alt={`Ambience ${index + 1}`}
-                                        className="w-full h-24 object-cover rounded"
-                                    />
-                                    <p className="text-center mt-1">{file.name}</p>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full h-[80vh] overflow-y-auto p-6 relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(false)}
+                    className="absolute top-2 right-2 text-gray-600 hover:scale-110 hover:delay-100 hover:text-red-600"
+                  >
+                    ✕
+                  </button>
+                  <h2 className="mb-2 text-xl font-semibold">Uploaded Images Preview:</h2>
+                  <ul className="grid grid-cols-3 gap-4">
+                    {ambienceImages.map((file, index) => (
+                      <li key={index} className="text-sm text-gray-600">
+                        <img
+                          src={file instanceof File ? URL.createObjectURL(file) : file} // Use URL for existing images
+                          alt={`Ambience ${index + 1}`}
+                          className="w-full h-24 object-cover rounded"
+                        />
+                        <p className="text-center mt-1">{file instanceof File ? file.name : `Image ${index + 1}`}</p>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              </div>
             )}
+
 
             <div className="mb-4">
               <label className="block mb-2 text-xl">Capacity:</label>
@@ -291,30 +291,30 @@ const AddRestaurantForm = ({ onClose }) => {
 
             {/* Image Preview Section */}
             {showPreview1 && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full h-[80vh] overflow-y-auto p-6 relative">
-                        <button
-                            type="button"
-                            onClick={() => setShowPreview1(false)}
-                            className="absolute top-2 right-2 text-gray-600 hover:font-solid hover:scale-110 hover:delay-100 hover:text-red-600"
-                        >
-                            ✕
-                        </button>
-                        <h4 className="mb-2 font-semibold">Uploaded Images Preview:</h4>
-                        <ul className="grid grid-cols-3 gap-4">
-                            {menuImages.map((file, index) => (
-                                <li key={index} className="text-sm text-gray-600">
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        alt={`Menu ${index + 1}`}
-                                        className="w-full h-24 object-cover rounded"
-                                    />
-                                    <p className="text-center mt-1">{file.name}</p>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full h-[80vh] overflow-y-auto p-6 relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview1(false)}
+                    className="absolute top-2 right-2 text-gray-600 hover:scale-110 hover:delay-100 hover:text-red-600"
+                  >
+                    ✕
+                  </button>
+                  <h2 className="mb-2 text-xl font-semibold">Uploaded Images Preview:</h2>
+                  <ul className="grid grid-cols-3 gap-4">
+                    {menuImages.map((file, index) => (
+                      <li key={index} className="text-sm text-gray-600">
+                        <img
+                          src={file instanceof File ? URL.createObjectURL(file) : file} // Use URL for existing images
+                          alt={`Menu ${index + 1}`}
+                          className="w-full h-24 object-cover rounded"
+                        />
+                        <p className="text-center mt-1">{file instanceof File ? file.name : `Image ${index + 1}`}</p>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              </div>
             )}
 
 

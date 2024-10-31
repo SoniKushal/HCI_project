@@ -18,8 +18,8 @@ const Sidebar = () => {
       {/* Navigation Links Section */}
       <nav className="flex flex-col space-y-10 mt-20"> {/* Increased spacing between links */}
         <Link 
-          to="/bookings" 
-          className={`flex items-center w-40 h-10 text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/ownerdashboard' ? 'text-red-600 font-semibold border rounded-md border-2 border-red-600 ring-2 ring-red-600' : 'text-black'}`} // Highlight active link
+          to="/ownerdashboard" 
+          className={`flex items-center w-40 h-10 text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/ownerdashboard' || location.pathname === '/ownerrestaurant'  ? 'text-red-600 font-semibold border rounded-md border-2 border-red-600 ring-2 ring-red-600' : 'text-black'}`} // Highlight active link
         >
           <FaClipboardList className="ml-6 mr-2" /> Home
         </Link>

@@ -4,41 +4,27 @@ import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; // Icons for arrows
 
-// Import images
-import offer1 from '../assets/offer1.jpg';
-import offer2 from '../assets/offer2.jpg';
-import offer3 from '../assets/offer3.jpg';
-import offer4 from '../assets/offer4.jpg';
-
-
-
-const OfferSlider = () => {
+const OfferSlider = ({ images, slidesToShow = 1 }) => {
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 1,
+    position : 'z-0',
+    slidesToShow: slidesToShow, // Use the slidesToShow prop
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 3000,
+    autoplaySpeed: 1500,
     nextArrow: <SampleNextArrow />,
     prevArrow: <SamplePrevArrow />,
   };
 
   return (
-    <Slider {...settings} >
-      <div>
-        <img src={offer1} alt="Offer 1" className="w-full h-80" />
-      </div>
-      <div>
-        <img src={offer2} alt="Offer 2" className="w-full h-80" />
-      </div>
-      <div>
-        <img src={offer3} alt="Offer 3" className="w-full h-80" />
-      </div>
-      <div>
-        <img src={offer4} alt="Offer 4" className="w-full h-80" />
-      </div>
+    <Slider {...settings} className='z-0'>
+      {images.map((image, index) => (
+        <div key={index}>
+          <img src={image} alt={`Offer ${index + 1}`} className="w-full h-80 object-cover" />
+        </div>
+      ))}
     </Slider>
   );
 };
@@ -61,7 +47,7 @@ const SamplePrevArrow = (props) => {
   const { onClick } = props;
   return (
     <div
-      className="absolute z-10 left-2 top-1/2 transform -translate-y-1/2 text-2xl cursor-pointer"
+      className="absolute z-50 left-2 top-1/2 transform -translate-y-1/2 text-2xl cursor-pointer"
       onClick={onClick}
     >
       <FaArrowLeft />

@@ -1,12 +1,19 @@
 import React from 'react';
 import Header from '../components/Header';
-import OffersSlider from '../components/Slider';
+import OfferSlider from '../components/Slider';
 import CuisineList from '../components/CuisineList';
 import RestaurantCard from '../components/RestaurantCard';
 import Footer from '../components/Footer';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; // Icons for arrows
 import Slider from 'react-slick'; // Import Slider from react-slick
+
+const offers = [
+ 'src/assets/offer1.jpg',
+'src/assets/offer2.jpg',
+ 'src/assets/offer3.jpg',
+ 'src/assets/offer4.jpg',
+]
 
 const Home = () => {
   const restaurants = [
@@ -87,7 +94,7 @@ const Home = () => {
     <>
       <Header />
       <main className="p-4 bg-background">
-        <OffersSlider />
+        <OfferSlider images={offers}/>
         <CuisineList className='px-4'/>
         <section className="mt-8 px-10">
           <h2 className="text-2xl mb-4">Restaurants Near You</h2>

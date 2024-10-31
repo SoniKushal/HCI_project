@@ -1,9 +1,26 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
+const RestaurantCard = ({ name, address, rating, image, isOwner = false }) => {
+  const navigate = useNavigate();
 
-const RestaurantCard = ({ name, address, rating, image }) => {
+  const handleClick = () => {
+    if (isOwner) {
+      // Redirect to the OwnerRestaurant page for owners
+      navigate('/ownerrestaurant');
+    } else {
+      // Redirect to the RestaurantDetails page for customers
+      // Uncomment and replace with actual route when implementing
+      // navigate('/restaurant-details');
+      console.log('Redirect to Restaurant Details page for customers');
+    }
+  };
+
   return (
-    <div className="w-72 h-72 m-2 shadow-lg rounded overflow-hidden transition ease-in-out delay-150 hover:text-red-500 hover:scale-110 hover:border-2 hover:rounded border-red-500">
+    <div
+      onClick={handleClick}
+      className="w-72 h-72 m-2 shadow-lg rounded overflow-hidden cursor-pointer transition ease-in-out delay-150 hover:text-red-500 hover:scale-110 hover:border-2 hover:rounded border-red-500"
+    >
       <div className="relative">
         <img
           src={image || 'assets/restaurant-placeholder.jpg'}

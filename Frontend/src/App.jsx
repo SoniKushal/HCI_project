@@ -11,7 +11,7 @@ import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AddRestaurantForm from './components/AddRestaurantForm';
 import SigninForm from './pages/LoginPage';
-import OwnerRestaurant from './pages/ownerrestaurant';
+import OwnerRestaurant from './pages/OwnerRestaurant';
 
 
 

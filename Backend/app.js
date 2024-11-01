@@ -9,7 +9,7 @@ const userRoutes = require('./routes/userRoutes');
 const app = express();
 const uri = process.env.MONGO_URI;
 const port = process.env.port || 4000;
-
+const restaurantRoutes = require('./routes/restaurantRoutes');
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -23,7 +23,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth',userRoutes)
-
+app.use('/restaurant', restaurantRoutes);
 mongoose.connect(uri)
 .then(()=>{
     console.log("Connected to Database");

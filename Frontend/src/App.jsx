@@ -14,7 +14,6 @@ import SigninForm from './pages/LoginPage';
 import OwnerRestaurant from './pages/OwnerRestaurant';
 
 
-
 function App() {
   return (
     <Router>

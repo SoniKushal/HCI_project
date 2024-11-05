@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 
 const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
+  {console.log(restaurantData)}
   const [name, setName] = useState(restaurantData.name || '');
   const [location, setLocation] = useState(restaurantData.location || '');
   const [ambienceImages, setAmbienceImages] = useState(restaurantData.ambienceImages || []);
@@ -88,7 +89,7 @@ const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
           ...resData.restaurant,
           imageUrl: `http://localhost:4000/restaurant/images/${resData.restaurant.image[0]}`,
         };
-        addRestaurant(newRestaurant);
+        restaurantData(newRestaurant);
         setName('');
         setLocation('');
         setAmbienceImages([]);

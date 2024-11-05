@@ -77,7 +77,7 @@ const OwnerDashboard = () => {
       <Header toggleSidebar={toggleSidebar} onSearch={handleSearch}  />
 
       {/* Sidebar is always visible on larger screens */}
-      <div className={`fixed top-0 z-50 left-0 w-64 h-screen bg-white p-4 transition-transform duration-300 ${!isSidebarOpen ? "block" : "hidden"} md:block`}>
+      <div className={`fixed top-0 z-50 left-0 w-64 h-screen bg-white p-4 transition-transform duration-300 ${!isSidebarOpen ? "block" : "hidden"}`}>
         <Sidebar />
       </div>
 
@@ -103,6 +103,7 @@ const OwnerDashboard = () => {
                 address={restaurant.location}
                 imageUrl={restaurant.imageUrl}
               />
+
             </div>
           ))}
         </div>

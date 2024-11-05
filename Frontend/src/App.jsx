@@ -11,6 +11,7 @@ import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AddRestaurantForm from './components/AddRestaurantForm';
 import SigninForm from './pages/LoginPage';
+import OwnerRestaurant from './pages/OwnerRestaurant';
 
 
 
@@ -26,6 +27,7 @@ function App() {
         <Route path="/login" element={<SigninForm />} />
         <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="/addrestaurant" element={<AddRestaurantForm />} />
+        <Route path="/ownerrestaurant" element={<OwnerRestaurant />} />
 
 
       </Routes>

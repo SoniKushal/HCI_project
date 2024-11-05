@@ -9,7 +9,7 @@ const Header = ({ toggleSidebar, onSearch}) => {
     <header className="sticky top-0 z-[100] ml-0 lg:ml-64 p-4 flex justify-between items-center bg-gray-100"> 
       
       {/* Hamburger Menu for Mobile */}
-      <button onClick={toggleSidebar} className="lg:hidden text-red-600 w-[30px] h-[30px] ">
+      <button onClick={toggleSidebar} className="lg:hidden  text-red-600 w-[30px] h-[30px] ">
         <FaBars size={30} />
       </button>
 

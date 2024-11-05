@@ -1,7 +1,10 @@
 import React from 'react';
 import { FaSearch, FaBell, FaUserCircle, FaBars } from 'react-icons/fa'; // Import necessary icons
 
-const Header = ({ toggleSidebar }) => {
+const Header = ({ toggleSidebar, onSearch}) => {
+  const handleSearchChange = (e)=>{
+    onSearch(e.target.value);
+  }
   return (
     <header className="sticky top-0 z-[100] ml-0 lg:ml-64 p-4 flex justify-between items-center bg-gray-100"> 
       
@@ -15,6 +18,7 @@ const Header = ({ toggleSidebar }) => {
         <input
           type="text"
           placeholder="Search"
+          onChange = {handleSearchChange}
           className="border border-gray-300 rounded-md w-full py-[6px] px-[10px] pl-[30px] focus:outline-none focus:ring focus:ring-red-500"
         />
         <FaSearch className="absolute left-[10px] top-[10px] text-red-500" />

@@ -9,7 +9,9 @@ const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 const uri = process.env.MONGO_URI;
-const port = process.env.PORT || 4000; // Use uppercase "PORT"
+
+const port = process.env.port || 4000;
+const restaurantRoutes = require('./routes/restaurantRoutes');
 
 app.use(cors({
     origin: 'http://localhost:5173', // Adjust based on your frontend's URL
@@ -17,7 +19,6 @@ app.use(cors({
 }));
 
 app.use(express.json()); // Parse JSON bodies
-
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -27,13 +28,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Logging middleware for debugging incoming requests
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`, req.body); // Log method, URL, and body
-    next();
-});
 
-app.use('/auth', userRoutes);
+app.use('/auth',userRoutes)
+app.use('/restaurant', restaurantRoutes);
 
 mongoose.connect(uri)
     .then(() => {

@@ -149,9 +149,8 @@ export default function ResetPasswordPage() {
           </p>
         </div>
 
-        <div className="w-7/12 relative bg-orange-100">
-          <img src={foodImage} alt="Food" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-orange-700/20" />
+        <div className="w-7/12">
+          <img src={foodImage} alt="Food" className="object-cover h-full w-full" />
         </div>
       </div>
     </div>

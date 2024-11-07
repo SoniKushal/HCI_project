@@ -4,6 +4,7 @@ import foodImage from "/src/assets/indian.jpg";
 import backgroundImage from "/src/assets/Untitled.png";
 import googleLogo from '/src/assets/google.png';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import { useAuth } from '../components/auth-context';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -46,10 +47,12 @@ const LoginPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const { login } = useAuth();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateFields()) return;
-
+  
     try {
       const response = await fetch('http://localhost:4000/auth/login', {
         method: 'POST',
@@ -58,12 +61,11 @@ const LoginPage = () => {
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (response.ok) {
         const data = await response.json();
-        console.log('Login successful:', data);
-        localStorage.setItem('token', data.token);
-        navigate('/'); // Redirect to home page on success
+        login(data.token); // Use the login function from context
+        navigate('/');
       } else {
         const error = await response.json();
         console.error('Error during login:', error.message);

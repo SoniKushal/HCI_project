@@ -1,21 +1,32 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import foodImage from "/src/assets/indian.jpg";
+import backgroundImage from "/src/assets/Untitled.png";
 import googleLogo from '/src/assets/google.png';
-import pizzaImage from '/src/assets/indian.jpg'; // Side image import
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
-const SigninForm = () => {
+const LoginPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    isOwner: false,
   });
-  const [signintype, setsignintype] = useState('customer');
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
+    });
+  };
+
+  const handleTabClick = (isOwner) => {
+    setFormData({
+      ...formData,
+      isOwner,
     });
   };
 
@@ -23,81 +34,158 @@ const SigninForm = () => {
     setShowPassword((prevState) => !prevState);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Add form submission logic here
+  const validateFields = () => {
+    const newErrors = {};
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Enter a valid email address";
+    }
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handlesigninTypeChange = (type) => {
-    setsignintype(type);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateFields()) return;
+
+    try {
+      const response = await fetch('http://localhost:4000/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Login successful:', data);
+        localStorage.setItem('token', data.token);
+        navigate('/'); // Redirect to home page on success
+      } else {
+        const error = await response.json();
+        console.error('Error during login:', error.message);
+        alert(error.message);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert('An unexpected error occurred. Please try again later.');
+    }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-cover bg-center" style={{ backgroundImage: `url('/src/assets/Untitled.png')` }}>
-      <div className="p-8 rounded-lg rounded-tr-none rounded-br-none shadow-lg w-96 opacity-950 relative ml-[15%]" style={{ backgroundColor: '#FFC300' }}>
-        <h2 className="text-black text-2xl font-bold text-center mb-4">Sign in</h2>
+    <div
+      className="flex items-center justify-center py-16"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <div
+        className="bg-white rounded-lg shadow-lg flex overflow-hidden"
+        style={{ width: '700px', minHeight: '80vh' }}
+      >
+        <div className="w-5/12 p-4 flex flex-col justify-center" style={{ backgroundColor: '#FFC300' }}>
+          <div className="text-center mb-4">
+            <h2 className="text-4xl font-bold text-gray-900">Sign in</h2>
+            <p className="text-lg text-gray-500">Sign in to continue</p>
+          </div>
 
-        {/* Sign in Type Selection Bar */}
-        <div className="flex overflow-x-auto bg-gray-100 p-2 mb-2 rounded-lg">
-          <button
-            onClick={() => handlesigninTypeChange('customer')}
-            className={`flex-grow p-2 font-bold text-center cursor-pointer ${signintype === 'customer' ? 'text-blue-500 border-b-4 border-blue-500' : ''}`}
-          >
-            Sign in as Customer
-          </button>
-          <button
-            onClick={() => handlesigninTypeChange('owner')}
-            className={`flex-grow p-2 font-bold text-center cursor-pointer ${signintype === 'owner' ? 'text-blue-500 border-b-4 border-blue-500' : ''}`}
-          >
-            Sign in as Owner
-          </button>
-        </div>
+          <div className="flex justify-between border-b-2 mb-4">
+            <button
+              className={`flex-1 text-center py-2 font-bold ${
+                !formData.isOwner ? 'text-blue-600 border-b-4 border-blue-600' : 'text-black'
+              }`}
+              onClick={() => handleTabClick(false)}
+            >
+              Sign in as <br /> Customer
+            </button>
+            <button
+              className={`flex-1 text-center py-2 font-bold ${
+                formData.isOwner ? 'text-blue-600 border-b-4 border-blue-600' : 'text-black'
+              }`}
+              onClick={() => handleTabClick(true)}
+            >
+              Sign in as <br /> Owner
+            </button>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-2">
-      {['email', 'password'].map((field) => (
-        <div key={field} className="relative w-full">
-          <input
-            type={field === 'password' && showPassword ? 'text' : field}
-            name={field}
-            placeholder={field.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-            value={formData[field]}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-400 rounded-lg"
-            required
-          />
-          {field === 'password' && (
+          <form className="space-y-3" onSubmit={handleSubmit} autoComplete="off">
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded-md text-lg"
+              placeholder="Email"
+              autoComplete="off"
+              required
+            />
+            {errors.email && <p className="text-red-600">{errors.email}</p>}
+
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-md text-lg"
+                placeholder="Password"
+                autoComplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+              >
+                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+              </button>
+            </div>
+            {errors.password && <p className="text-red-600">{errors.password}</p>}
+
+            <div className="text-left mb-4">
+              <Link to="/forgotpassword" className="text-red-500 text-sm hover:underline cursor-pointer">Forgot Password</Link>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2 rounded-md text-lg font-bold text-white bg-orange-500 hover:bg-orange-600"
+            >
+              Sign In
+            </button>
+
             <button
               type="button"
-              onClick={togglePasswordVisibility}
-              className="absolute inset-y-0 right-2 flex items-center text-gray-500"
+              onClick={() => {
+                window.location.href = `http://localhost:4000/auth/google?type=${formData.isOwner}`;
+              }}
+              className="flex items-center justify-center w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
             >
-              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              <img src={googleLogo} alt="Google Logo" className="w-5 h-auto mr-2" />
+              <span>Continue with Google</span>
             </button>
-          )}
-        </div>
-      ))}
-    </form>
 
-        <div className="text-left mb-4">
-          <a href="/forgotpassword" className="text-red-500 text-sm hover:underline cursor-pointer">Forgot Password</a>
+            <p className="text-center text-gray-600 text-lg mt-3">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-black font-bold hover:underline">
+                Sign up
+              </Link>
+            </p>
+          </form>
         </div>
 
-        {/* Google Sign In Button */}
-        <div className="text-center mt-4 space-y-2">
-          <button className="w-full bg-orange-500 hover:bg-orange-600  text-white py-2 rounded">Sign in</button>
-          <button className="flex items-center justify-center w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-            <img src={googleLogo} alt="Google Logo" className="w-5 h-auto mr-2" />
-            <span>Continue with Google</span>
-          </button>
+        <div className="w-7/12 relative bg-orange-100">
+          <img src={foodImage} alt="Food" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-orange-700/20" />
         </div>
-      </div>
-
-      {/* Side Image */}
-      <div className="flex justify-center">
-        <img src={pizzaImage} alt="Side Visual" className="w-[36rem] h-[26.5rem] rounded-lg opacity-9 ml-[-80%]" />
       </div>
     </div>
   );
 };
 
-export default SigninForm;
+export default LoginPage;

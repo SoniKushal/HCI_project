@@ -189,4 +189,51 @@ const resetPassword = async (req, res) => {
 
 
 
-module.exports = { signup_post, login_post, forgotPassword, resetPassword};
+const profile_get = async (req, res) => {
+    try {
+      const userId = req.user._id; // Extracted from token by `validatetoken` middleware
+      const user = await usermodel.findById(userId, 'name phone email isOwner'); // Only select necessary fields
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.status(200).json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An error occurred while retrieving profile data' });
+    }
+  };
+  
+  const profile_update = async (req, res) => {
+    try {
+      const userId = req.user._id; // Extracted from token by `validatetoken` middleware
+      const { name, phone, email } = req.body;
+  
+      // Check if email is already in use by another user
+      const existingUser = await usermodel.findOne({ email, _id: { $ne: userId } });
+      if (existingUser) {
+        return res.status(409).json({ message: 'Email is already in use' });
+      }
+  
+      const user = await usermodel.findByIdAndUpdate(
+        userId,
+        { name, phone, email },
+        { new: true, runValidators: true }
+      );
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.status(200).json(user);
+    } catch (error) {
+      console.error(error);
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({ message: error.message });
+      }
+      res.status(500).json({ message: 'An error occurred while updating profile' });
+    }
+  };
+  
+  module.exports = { signup_post, login_post, forgotPassword, resetPassword, profile_get, profile_update };

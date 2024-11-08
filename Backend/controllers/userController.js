@@ -37,27 +37,51 @@ const signup_post = async (req, res) => {
 const login_post = async (req, res) => {
     try {
         const { email, password, isOwner } = req.body;
+
+        // Retrieve user from DB based on email
         const data = await usermodel.findOne({ email: email });
         if (!data) {
-            return res.status(401).json({ message: "Enter Valid Email" });
+            return res.status(401).json({ message: "Enter valid email" });
         }
-        if (data.isOwner != isOwner) {
-            return res.status(401).json({ message: "Invalid User" });
+
+        // Ensure the user matches the role (isOwner)
+        if (data.isOwner !== isOwner) {
+            return res.status(401).json({ message: "Invalid user" });
         }
+
+        // Compare the entered password with the stored hashed password
+        // const hashePassword = await bcrypt.hash(password, 10);
+
+// Print both passwords to the console
+console.log("Plaintext password:", password);
+console.log("Hashed password from database:", data.password);
+
         const isMatch = await bcrypt.compare(password, data.password);
         if (!isMatch) {
             return res.status(401).json({ message: "Enter valid password" });
         }
-        const token = jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
+
+        // Generate a JWT token
+        const token = jwt.sign({ _id: data._id, isOwner: data.isOwner }, process.env.JWT_SECRET, {
             expiresIn: "24h"
         });
+
+        // Set the token in the Authorization header
         res.setHeader('Authorization', 'Bearer ' + token);
-        res.status(200).json({ message: "User logged in successfully", userId: data._id, token: token });
+
+        // Send the response back
+        res.status(200).json({
+            message: "User logged in successfully",
+            userId: data._id,
+            token: token
+        });
     } catch (error) {
+        // Log the error and send a response with a 500 status code
         console.log(error.message);
-        res.status(400).json({ message: error.message });
+        res.status(500).json({ message: "An unexpected error occurred. Please try again later." });
     }
 };
+
 
 const sendresetpasswordmail = async (name, email, token) => {
     try {
@@ -77,7 +101,7 @@ const sendresetpasswordmail = async (name, email, token) => {
             from: process.env.email,
             to: email,
             subject: 'For reset password',
-            html: `<p>Hi, ${name}, please copy the link and <a href="${process.env.FRONTEND_URL}/auth/reset-password/${token}">reset your password</a>.</p>`
+            html: `<p>Hi, ${name}, please copy the link and <a href="${process.env.FRONTEND_URL}/reset-password/${token}">reset your password</a>.</p>`
 
         }
 
@@ -125,34 +149,91 @@ const forgotPassword = async (req, res) => {
 
 }
 
+
 const resetPassword = async (req, res) => {
     try {
-        // console.log(req.params)
-        const token = req.params.token;
-        // console.log(`from backend ${token}`)
-        const tokendata = await Token.findOne({ token: token });
-        if (tokendata) {
-            const password = req.body.password;
-            if (!password) {
-                return res.status(401).send({ message: "Password is required" });
-            }
-            const user = await usermodel.findOne({ _id: tokendata.userid });
-            if (!user) {
-                return res.status(400).send({ message: "Cannot find user" });
-            }
-            user.password = password;
-            await user.save();
-            await tokendata.deleteOne({ token: token })
-            return res.status(200).send({ message: "Password changed successfully" });
-        }
-        else {
-            return res.status(404).send({ message: "Invalid Token" });
+        const { token } = req.params;
+        const { password } = req.body;
+
+        console.log("Received reset token:", token);
+        console.log("New password attempt:", password);
+
+        const tokendata = await Token.findOne({ token });
+        if (!tokendata) {
+            console.log("Token not found or expired.");
+            return res.status(404).send({ message: "Invalid or expired token" });
         }
 
+        // const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await usermodel.findById(tokendata.userid);
+        if (!user) {
+            return res.status(400).send({ message: "User not found" });
+        }
+
+        console.log("Hashed Password before saving:", password);
+        user.password = password;
+
+        await user.save({ validateBeforeSave: false});
+
+        // Delete the token after successful password reset
+        await tokendata.deleteOne();
+
+        console.log("Password reset successfully for user:", tokendata.userid);
+        return res.status(200).send({ message: "Password changed successfully" });
     } catch (error) {
-        console.log(error);
-        res.status(401).json({ message: error.message });
+        console.error("General error in resetPassword function:", error);
+        res.status(500).json({ message: "An error occurred. Please try again later." });
     }
-}
+};
 
-module.exports = { signup_post, login_post, forgotPassword, resetPassword };
+
+
+const profile_get = async (req, res) => {
+    try {
+      const userId = req.user._id; // Extracted from token by `validatetoken` middleware
+      const user = await usermodel.findById(userId, 'name phone email isOwner'); // Only select necessary fields
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.status(200).json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'An error occurred while retrieving profile data' });
+    }
+  };
+  
+  const profile_update = async (req, res) => {
+    try {
+      const userId = req.user._id; // Extracted from token by `validatetoken` middleware
+      const { name, phone, email } = req.body;
+  
+      // Check if email is already in use by another user
+      const existingUser = await usermodel.findOne({ email, _id: { $ne: userId } });
+      if (existingUser) {
+        return res.status(409).json({ message: 'Email is already in use' });
+      }
+  
+      const user = await usermodel.findByIdAndUpdate(
+        userId,
+        { name, phone, email },
+        { new: true, runValidators: true }
+      );
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.status(200).json(user);
+    } catch (error) {
+      console.error(error);
+      if (error.name === 'ValidationError') {
+        return res.status(400).json({ message: error.message });
+      }
+      res.status(500).json({ message: 'An error occurred while updating profile' });
+    }
+  };
+  
+  module.exports = { signup_post, login_post, forgotPassword, resetPassword, profile_get, profile_update };

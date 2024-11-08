@@ -12,12 +12,14 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AddRestaurantForm from './components/AddRestaurantForm';
 import SigninForm from './pages/LoginPage';
 import OwnerRestaurant from './pages/OwnerRestaurant';
-
+import ResetPassword from './pages/ResetPassword'; // Import ResetPasswordPage
+import { AuthProvider } from './components/auth-context';
 
 
 function App() {
   return (
     <Router>
+      <AuthProvider>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
@@ -28,12 +30,11 @@ function App() {
         <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="/addrestaurant" element={<AddRestaurantForm />} />
         <Route path="/ownerrestaurant/:restaurantId" element={<OwnerRestaurant />} />
-
-
+        <Route path="/reset-password/:token" element={<ResetPassword />} /> {/* Add this route */}
       </Routes>
+      </AuthProvider>
     </Router>
   );
 }
 
 export default App;
-

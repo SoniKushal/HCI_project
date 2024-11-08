@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import foodImage from "/src/assets/indian.jpg";
 import backgroundImage from "/src/assets/Untitled.png";
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -13,13 +14,17 @@ const SignupPage = () => {
     isOwner: false,
   });
   const [errors, setErrors] = useState({});
-
+  const [showPassword, setShowPassword] = useState(false);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevState) => !prevState);
   };
 
   const handleTabClick = (isOwner) => {
@@ -153,7 +158,7 @@ const SignupPage = () => {
             />
             {errors.email && <p className="text-red-600">{errors.email}</p>}
 
-            <input
+            {/* <input
               type="password"
               name="password"
               value={formData.password}
@@ -163,7 +168,26 @@ const SignupPage = () => {
               autoComplete="new-password"
               required
             />
-            {errors.password && <p className="text-red-600">{errors.password}</p>}
+            {errors.password && <p className="text-red-600">{errors.password}</p>} */}
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border rounded-md text-lg"
+                placeholder="Password"
+                autoComplete="new-password"
+                required
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+              >
+                {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+              </button>
+              </div>
 
             <button
               type="submit"

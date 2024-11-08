@@ -6,11 +6,12 @@ const passportsetup = require('./middleware/passport_setup');
 const passport = require('passport');
 const session = require('express-session');
 const userRoutes = require('./routes/userRoutes');
+const bookingRoutes = require("./routes/bookingRoutes")
 
 const app = express();
 const uri = process.env.MONGO_URI;
 
-const port = process.env.port || 4000;
+const port = process.env.PORT || 4000;
 const restaurantRoutes = require('./routes/restaurantRoutes');
 
 app.use(cors({
@@ -28,10 +29,9 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-app.use('/auth',userRoutes)
+app.use('/auth', userRoutes);
 app.use('/restaurant', restaurantRoutes);
-
+app.use('/bookings', bookingRoutes);
 mongoose.connect(uri)
     .then(() => {
         console.log("Connected to Database");
@@ -41,8 +41,9 @@ mongoose.connect(uri)
     })
     .catch(err => console.log(err));
 
-// Global error handling middleware
+// Enhanced Global error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack); // Log the error stack for debugging
+    console.error("Error message:", err.message);
+    console.error("Stack trace:", err.stack);
     res.status(500).json({ message: 'Something went wrong!' });
 });

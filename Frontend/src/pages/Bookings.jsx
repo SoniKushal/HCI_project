@@ -16,6 +16,43 @@ export default function Booking() {
     setMaxDate(sevenDaysLater.toISOString().split('T')[0])
   }, [])
 
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:4000/bookings/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}` // Assuming you store the token in localStorage
+        },
+        body: JSON.stringify({
+          // restaurantId: /* get from URL or props */
+          name: e.target.name.value,
+          mobileNumber: e.target.mobile.value,
+          numberOfGuests: parseInt(e.target.guests.value),
+          visitingDate: e.target.date.value,
+          email: e.target.email.value,
+          visitingTime: e.target.time.value
+        })
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        // Show success message
+        alert('Booking created successfully!');
+        // Optionally redirect to booking confirmation page
+      } else {
+        // Show error message
+        alert(data.error || 'Failed to create booking');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to create booking');
+    }
+  };
+
+
   return (
     <>
     <Header/>

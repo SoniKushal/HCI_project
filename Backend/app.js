@@ -6,6 +6,7 @@ const passportsetup = require('./middleware/passport_setup');
 const passport = require('passport');
 const session = require('express-session');
 const userRoutes = require('./routes/userRoutes');
+const bookingRoutes = require("./routes/bookingRoutes")
 
 const app = express();
 const uri = process.env.MONGO_URI;
@@ -30,7 +31,7 @@ app.use(passport.session());
 
 app.use('/auth', userRoutes);
 app.use('/restaurant', restaurantRoutes);
-
+app.use('/bookings', bookingRoutes);
 mongoose.connect(uri)
     .then(() => {
         console.log("Connected to Database");

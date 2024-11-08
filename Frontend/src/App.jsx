@@ -27,7 +27,7 @@ function App() {
         <Route path="/login" element={<SigninForm />} />
         <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="/addrestaurant" element={<AddRestaurantForm />} />
-        <Route path="/ownerrestaurant" element={<OwnerRestaurant />} />
+        <Route path="/ownerrestaurant/:restaurantId" element={<OwnerRestaurant />} />
 
 
       </Routes>

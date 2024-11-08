@@ -2,27 +2,27 @@ import React from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; // Icons for arrows
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 const OfferSlider = ({ images, slidesToShow = 1 }) => {
   const settings = {
     dots: true,
-    infinite: true,
+    infinite: true, 
     speed: 500,
-    position : 'z-0',
-    slidesToShow: slidesToShow, // Use the slidesToShow prop
+    slidesToShow: slidesToShow,
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 1500,
     nextArrow: <SampleNextArrow />,
     prevArrow: <SamplePrevArrow />,
   };
-
+  //console.log("Slider Images:", images); // Log the images for debugging
   return (
     <Slider {...settings} className='z-0'>
-      {images.map((image, index) => (
-        <div key={index}>
-          <img src={image} alt={`Offer ${index + 1}`} className="w-full h-80 object-cover" />
+      {images.map((image,index) => (
+        <div key={`${image}-${index}`}>
+          <img src={`http://localhost:4000/restaurant/images/${image}`} alt={`Offer ${image}`} className="w-full h-80 object-cover" />
+          {/* {console.log(image)} */}
         </div>
       ))}
     </Slider>

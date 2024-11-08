@@ -57,7 +57,7 @@ router.post(
 );
 
 router.put(
-    '/update/:id',
+    '/updateRestaurant/:id',
     validatetoken,
     upload.fields([{ name: 'image' }, { name: 'menuImage' }]),
     restaurantController.updateRestaurant
@@ -66,7 +66,7 @@ router.put(
 router.get('/allRestaurant', validatetoken, restaurantController.allRestaurant);
 router.delete('/delete/:id', validatetoken, restaurantController.deleteRestaurant);
 router.get('/searchRestaurant', validatetoken, restaurantController.searchRestaurant);
-
+router.get('/:id',validatetoken,restaurantController.GetRestaurantById)
 // File serving route
 // router.get('/images/:filename', async (req, res) => {
 //     try {

@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
 
 
-const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
-  {console.log(restaurantData)}
-  const [name, setName] = useState(restaurantData.name || '');
-  const [location, setLocation] = useState(restaurantData.location || '');
-  const [ambienceImages, setAmbienceImages] = useState(restaurantData.ambienceImages || []);
-  const [menuImages, setMenuImages] = useState(restaurantData.menuImages || []);
-  const [capacity, setCapacity] = useState(restaurantData.capacity || { twoPerson: 0, fourPerson: 0, sixPerson: 0 });
-  const [cuisines, setCuisines] = useState(restaurantData.cuisines || []);
-  const [openingHours, setOpeningHours] = useState(restaurantData.openingHours || { openHour: '00', openMinute: '00', closeHour: '00', closeMinute: '00' });
-  const [phoneNumber, setPhoneNumber] = useState(restaurantData.phoneNumber || '');
+const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }) => {
+
+  const [name, setName] = useState(restaurantData?.name || '');
+  const [location, setLocation] = useState(restaurantData?.location || '');
+  const [ambienceImages, setAmbienceImages] = useState(restaurantData?.image || []);
+  const [menuImages, setMenuImages] = useState(restaurantData?.menuImage || []);
+  const [capacity, setCapacity] = useState(restaurantData?.capacity || { twoPerson: 0, fourPerson: 0, sixPerson: 0 });
+  const [cuisines, setCuisines] = useState(restaurantData?.cuisines || []);
+  const [openingHours, setOpeningHours] = useState({
+    openHour: restaurantData?.openingTime?.split(':')[0] || '00',
+    openMinute: restaurantData?.openingTime?.split(':')[1] || '00',
+    closeHour: restaurantData?.closingTime?.split(':')[0] || '00',
+    closeMinute: restaurantData?.closingTime?.split(':')[1] || '00'
+  });
+  const [phoneNumber, setPhoneNumber] = useState(restaurantData?.phoneNumber || '');
   const [showPreview, setShowPreview] = useState(false); // State to control preview visibility
   const [showPreview1, setShowPreview1] = useState(false); // State to control preview visibility
 
@@ -18,6 +23,11 @@ const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
   const [isCapacityModalOpen, setIsCapacityModalOpen] = useState(false);
   const [isCuisinesModalOpen, setIsCuisinesModalOpen] = useState(false);
 
+
+  useEffect(()=>{
+    setAmbienceImages(restaurantData?.image || []);
+    setMenuImages(restaurantData?.menuImage || []);
+  }, [restaurantData])
   // Cuisines list
   const availableCuisines = [
     'Italian', 'Chinese', 'Indian', 'Mexican', 'Thai', 'Japanese'
@@ -38,58 +48,79 @@ const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
   const handleSubmitCuisines = () => {
     setIsCuisinesModalOpen(false);
   };
-
+  const urlToFile = async (url, filename, mimeType) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: mimeType });
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Prepare data to send to backend
-    // const restaurantData = {
-    //   name,
-    //   location,
-    //   image:ambienceImages,
-    //   menuImage:menuImages,
-    //   capacity,
-    //   cuisines,
-    //   openingHours,
-    //   phoneNumber,
-    // };
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('location', location);
-    formData.append('capacity', JSON.stringify(capacity));
-    formData.append('cuisines', cuisines);
-    formData.append('openingTime', `${openingHours.openHour}:${openingHours.openMinute}`);
-    formData.append('closingTime', `${openingHours.closeHour}:${openingHours.closeMinute}`);
-    formData.append('phoneNumber', phoneNumber);
-
-    // Append image files
-    ambienceImages.forEach((image) => {
-      formData.append('image', image); // Assuming ambienceImages is an array of File objects
-    });
-    menuImages.forEach((menuImage) => {
-      formData.append('menuImage', menuImage); // Assuming menuImages is an array of File objects
-    });
-    // Simulate sending data to backend (replace with your API call)
-    //console.log('Submitting:', restaurantData);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:4000/restaurant/addRestaurant', {
-        method: 'POST',
+
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('location', location);
+      formData.append('capacity', JSON.stringify(capacity));
+      formData.append('cuisines', cuisines);
+      formData.append('openingTime', `${openingHours.openHour}:${openingHours.openMinute}`);
+      formData.append('closingTime', `${openingHours.closeHour}:${openingHours.closeMinute}`);
+      formData.append('phoneNumber', phoneNumber);
+
+      const ambienceImageFiles = await Promise.all(
+        ambienceImages.map(async (img) => {
+          if (img instanceof File) return img;
+          // Convert non-File type image to File
+          return await urlToFile(`http://localhost:4000/restaurant/images/${img}`, img, 'image/jpeg');
+        })
+      );
+  
+      ambienceImageFiles.forEach((file) => {
+        formData.append('image', file);
+      });
+  
+      // Process menu images similarly
+      const menuImageFiles = await Promise.all(
+        menuImages.map(async (img) => {
+          if (img instanceof File) return img;
+          return await urlToFile(`http://localhost:4000/restaurant/images/${img}`, img, 'image/jpeg');
+        })
+      );
+  
+      menuImageFiles.forEach((file) => {
+        formData.append('menuImage', file);
+      });
+
+      const endpoint = isEditing
+        ? `http://localhost:4000/restaurant/updateRestaurant/${restaurantData._id}`
+        : 'http://localhost:4000/restaurant/addRestaurant';
+
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(endpoint, {
+        method,
         headers: {
           'Authorization': `Bearer ${token}`,
         },
         body: formData,
       });
+
       if (response.ok) {
-        //console.log('Restaurant added successfully');
-        // Reset form fields after successful submission
         const resData = await response.json();
-        
         const newRestaurant = {
           ...resData.restaurant,
           imageUrl: `http://localhost:4000/restaurant/images/${resData.restaurant.image[0]}`,
         };
-        restaurantData(newRestaurant);
+
+        // if (isEditing) {
+        //   // Perform any update logic for edited restaurant
+        //   addRestaurant(newRestaurant);
+        // } else {
+        //   // If adding a new restaurant, add it to the parent list
+        //   addRestaurant(newRestaurant);
+        // }
+        addRestaurant(newRestaurant);
+        // Reset the form fields after successful submission
         setName('');
         setLocation('');
         setAmbienceImages([]);
@@ -101,29 +132,15 @@ const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
         setShowPreview(false);
         setShowPreview1(false);
 
-        // Close the form
         onClose();
       } else {
-        console.error('Error adding restaurant:', response.statusText);
+        console.error('Error adding/updating restaurant:', response.statusText);
       }
     } catch (error) {
-      console.error('Error adding restaurant 1:', error);
+      console.error('Error during submit:', error);
     }
-    // Reset form fields
-    // setName('');
-    // setLocation('');
-    // setAmbienceImages([]);
-    // setMenuImages([]);
-    // setCapacity({ twoPerson: 0, fourPerson: 0, sixPerson: 0 });
-    // setCuisines([]);
-    // setOpeningHours({ openHour: '00', openMinute: '00', closeHour: '00', closeMinute: '00' });
-    // setPhoneNumber('');
-    // setShowPreview(false); // Hide preview on form reset
-    // setShowPreview1(false); // Hide preview on form reset
-
-    // // Close form after submission
-    // onClose();
   };
+
 
   // Handle multiple ambience image upload and show preview button
   const handleAmbienceImageChange = (e) => {
@@ -140,8 +157,8 @@ const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
 
   return (
     <div className="fixed z-40 inset-0 mt-4 flex items-center justify-center bg-black bg-opacity-60 h-[100vh] overflow-y-auto">
-      <form 
-        onSubmit={handleSubmit} 
+      <form
+        onSubmit={handleSubmit}
         className="bg-slate-50 rounded-lg shadow-lg p-6 w-11/12 md:w-3/4 lg:w-1/2"
       >
         <div className="max-w-3xl mb-2 w-full relative">
@@ -208,8 +225,7 @@ const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
                     {ambienceImages.map((file, index) => (
                       <li key={index} className="text-sm text-gray-600">
                         <img
-
-                          src={file instanceof File ? URL.createObjectURL(file) : file} // Use URL for existing images
+                          src={file instanceof File ? URL.createObjectURL(file) : `http://localhost:4000/restaurant/images/${file}`} // Use URL for existing images
                           alt={`Ambience ${index + 1}`}
                           className="w-full h-24 object-cover rounded"
                         />
@@ -353,7 +369,7 @@ const AddRestaurantForm = ({ onClose , restaurantData = {}}) => {
                     {menuImages.map((file, index) => (
                       <li key={index} className="text-sm text-gray-600">
                         <img
-                          src={file instanceof File ? URL.createObjectURL(file) : file} // Use URL for existing images
+                          src={file instanceof File ? URL.createObjectURL(file) : `http://localhost:4000/restaurant/images/${file}`} // Use URL for existing images
                           alt={`Menu ${index + 1}`}
                           className="w-full h-24 object-cover rounded"
                         />

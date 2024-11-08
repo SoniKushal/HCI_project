@@ -46,7 +46,11 @@ const OwnerDashboard = () => {
       console.log('Failed to Fetch Restaurants', error);
     }
   }
-  const restaurantData = (newRestaurant) => {
+  // const restaurantData = (newRestaurant) => {
+  //   setRestaurants((prevRestaurants) => [...prevRestaurants, newRestaurant]);
+  //   setFilteredRestaurants((prevFiltered) => [...prevFiltered, newRestaurant]);
+  // }
+  const addRestaurant = (newRestaurant) => {
     setRestaurants((prevRestaurants) => [...prevRestaurants, newRestaurant]);
     setFilteredRestaurants((prevFiltered) => [...prevFiltered, newRestaurant]);
   }
@@ -72,6 +76,9 @@ const OwnerDashboard = () => {
       setFilteredRestaurants(restaurants);
     }
   }
+  // const handleRestaurantAdded = (newRestaurant) => {
+  //   setRestaurants([...restaurants, newRestaurant]); // Add new restaurant to state
+  // };
   return (
     <>
       <Header toggleSidebar={toggleSidebar} onSearch={handleSearch}  />
@@ -103,6 +110,7 @@ const OwnerDashboard = () => {
                 address={restaurant.location}
                 imageUrl={restaurant.imageUrl}
                 isOwner = {true}
+                restaurantId = {restaurant._id}
               />
 
             </div>
@@ -111,7 +119,7 @@ const OwnerDashboard = () => {
 
         {/* Add Restaurant Form Modal */}
         {isAddFormOpen && (
-          <AddRestaurantForm onClose={() => setIsAddFormOpen(false)} restaurantData={restaurantData} />
+          <AddRestaurantForm onClose={() => setIsAddFormOpen(false)}  addRestaurant={addRestaurant}/>
         )}
 
       </main>

@@ -90,14 +90,12 @@ const updateRestaurant = async (req, res) => {
     }
 }
 
-let gfsBucket,gfs;
+let gfsBucket;
 const conn = mongoose.connection;
 conn.once('open', () => {
     gfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
         bucketName: 'uploads' 
     });
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection('uploads');
 });
 
 const deleteRestaurant = async (req, res) => {

@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShop } from '@fortawesome/free-solid-svg-icons'
 // import { FaShop } from 'react-icons/fa'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
 
 const OwnerDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to manage sidebar visibility
@@ -17,6 +18,7 @@ const OwnerDashboard = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  const navigate = useNavigate();
   // useEffect(() => {
   //   if (isAddFormOpen) {
   //       document.body.classList.add("modal-open");
@@ -42,8 +44,13 @@ const OwnerDashboard = () => {
       }));
       setRestaurants(restaurantData);
       setFilteredRestaurants(restaurantData);
-    } catch (error) {
-      console.log('Failed to Fetch Restaurants', error);
+    } catch (err) {
+      console.log('Failed to Fetch Restaurants', err);
+      if (err.response && err.response.status === 401) {
+        // Token has expired, redirect to login page
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
     }
   }
   // const restaurantData = (newRestaurant) => {
@@ -71,6 +78,11 @@ const OwnerDashboard = () => {
         setFilteredRestaurants(searchResults);
         } catch (err) {
           console.log('Failed to search Restaurants', err);
+          if (err.response && err.response.status === 401) {
+            // Token has expired, redirect to login page
+            localStorage.removeItem('token');
+            navigate('/login');
+          }
         }
     } else {
       setFilteredRestaurants(restaurants);

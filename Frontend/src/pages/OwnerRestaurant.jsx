@@ -7,7 +7,6 @@ import Slider from '../components/Slider'; // Import Slider component
 import { FaStar, FaEdit, FaTrash } from 'react-icons/fa';
 import { useParams , useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
 const OwnerRestaurant = () => {
   const { restaurantId } = useParams();
   const [restaurant, setRestaurant] = useState(null);
@@ -18,7 +17,6 @@ const OwnerRestaurant = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
   const handleFormOpen = () => setIsFormOpen(true);
   const handleFormClose = () => setIsFormOpen(false);
 
@@ -36,6 +34,11 @@ const OwnerRestaurant = () => {
         setRestaurant(res.data.restaurantData);
       } catch (error) {
         console.error("Error fetching restaurant:", error);
+        if (error.response && error.response.status === 401) {
+          // Token has expired, redirect to login page
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
       } finally {
         setLoading(false); // Set loading to false after fetching data
       }
@@ -60,6 +63,11 @@ const OwnerRestaurant = () => {
       }
     } catch (error) {
       console.error("Failed to delete restaurant:", error.response?.data?.message || error.message);
+      if (error.response && error.response.status === 401) {
+        // Token has expired, redirect to login page
+        localStorage.removeItem('token');
+        navigate('/login');
+      }
     }
   };
   if (loading) {

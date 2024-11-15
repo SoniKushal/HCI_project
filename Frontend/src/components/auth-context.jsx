@@ -1,5 +1,7 @@
+// auth-context.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; // Changed from default import
 
 const AuthContext = createContext(null);
 
@@ -8,25 +10,53 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const decodeAndSetUser = (token) => {
+    try {
+      const decodedToken = jwtDecode(token);
+      return {
+        token,
+        role: decodedToken.isOwner ? 'owner' : 'customer',
+        _id: decodedToken._id,
+      };
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      localStorage.removeItem('token');
+      return null;
+    }
+  };
+
   useEffect(() => {
     // Check for token in localStorage on initial load
     const token = localStorage.getItem('token');
     if (token) {
-      // Verify token validity here if needed
-      setUser({ token });
+      const userData = decodeAndSetUser(token);
+      if (userData) {
+        setUser(userData);
+      }
     }
     setLoading(false);
   }, []);
 
   const login = (token) => {
     localStorage.setItem('token', token);
-    setUser({ token });
+    const userData = decodeAndSetUser(token);
+    if (userData) {
+      setUser(userData);
+    }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);
-    // Removed the navigate to login
+  };
+
+  const isTokenExpired = (token) => {
+    try {
+      const decoded = jwtDecode(token);
+      return decoded.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
   };
 
   const value = {

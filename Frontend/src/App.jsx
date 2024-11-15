@@ -12,26 +12,35 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AddRestaurantForm from './components/AddRestaurantForm';
 import SigninForm from './pages/LoginPage';
 import OwnerRestaurant from './pages/OwnerRestaurant';
-import ResetPassword from './pages/ResetPassword'; // Import ResetPasswordPage
+import ResetPassword from './pages/ResetPassword';
 import { AuthProvider } from './components/auth-context';
-
+import AuthMiddleware from './components/AuthMiddleware';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/bookings" element={<Bookings />} />
-        <Route path="/ownerdashboard" element={<Dashboard />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/login" element={<SigninForm />} />
-        <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
-        <Route path="/addrestaurant" element={<AddRestaurantForm />} />
-        <Route path="/ownerrestaurant/:restaurantId" element={<OwnerRestaurant />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} /> {/* Add this route */}
-      </Routes>
+        <AuthMiddleware>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/login" element={<SigninForm />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+            {/* Customer Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/bookings" element={<Bookings />} />
+
+            {/* Owner Routes */}
+            <Route path="/ownerdashboard" element={<Dashboard />} />
+            <Route path="/addrestaurant" element={<AddRestaurantForm />} />
+            <Route path="/ownerrestaurant/:restaurantId" element={<OwnerRestaurant />} />
+
+            {/* Shared Routes */}
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </AuthMiddleware>
       </AuthProvider>
     </Router>
   );

@@ -1,12 +1,19 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation , useNavigate } from 'react-router-dom';
 import { FaClipboardList, FaEnvelope, FaChartPie, FaBox, FaCog, FaSignOutAlt } from 'react-icons/fa'; // Import necessary icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShop } from '@fortawesome/free-solid-svg-icons'
+import { useAuth } from './auth-context';
 
 const Sidebar = () => {
   const location = useLocation(); // Get current location
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
+  const handleLogout = ()=>{
+    logout();
+    navigate('/login');
+  }
   return (
     <aside className="w-64 h-screen bg-white p-4 md:w-48 sm:w-full">
       
@@ -51,12 +58,12 @@ const Sidebar = () => {
 
       {/* Logout Section */}
       <div className="mb-auto mt-32 pt-auto">
-        <Link 
-          to="/logout" 
+      <button 
+          onClick={handleLogout}
           className="flex items-center text-black text-xl hover:font-semibold hover:delay-150 hover:text-red-500"
         >
           <FaSignOutAlt className="ml-6 mr-2" /> Log Out
-        </Link>
+      </button>
       </div>
     </aside>
   );

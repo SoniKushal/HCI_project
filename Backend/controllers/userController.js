@@ -149,8 +149,6 @@ const resetPassword = async (req, res) => {
         const { token } = req.params;
         const { password } = req.body;
 
-        console.log("Received reset token:", token);
-        console.log("New password attempt:", password);
 
         const tokendata = await Token.findOne({ token });
         if (!tokendata) {
@@ -165,7 +163,6 @@ const resetPassword = async (req, res) => {
             return res.status(400).send({ message: "User not found" });
         }
 
-        console.log("Hashed Password before saving:", password);
         user.password = password;
 
         await user.save({ validateBeforeSave: false});
@@ -173,7 +170,6 @@ const resetPassword = async (req, res) => {
         // Delete the token after successful password reset
         await tokendata.deleteOne();
 
-        console.log("Password reset successfully for user:", tokendata.userid);
         return res.status(200).send({ message: "Password changed successfully" });
     } catch (error) {
         console.error("General error in resetPassword function:", error);

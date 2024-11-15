@@ -27,7 +27,7 @@ router.get('/google/redirect', passport.authenticate('google',{ failureRedirect:
     if((req.user.isOwner && usertype === 'false') || (!req.user.isOwner && usertype === 'true')) {
         return res.redirect(`${process.env.FRONTEND_URL}/login?error=Unauthorized&type=${utype}`);
     }
-    const token = jwt.sign({_id: userid}, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({_id: userid , isOwner: req.user.isOwner}, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.redirect(`${process.env.FRONTEND_URL}/login?token=${token}`);
 })
 

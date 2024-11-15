@@ -37,9 +37,19 @@ export default function Profile() {
           setUpdatedEmail(data.email);
         } else {
           console.error('Failed to fetch profile data');
+          if(response.status === 401)
+          {
+            localStorage.removeItem('token');
+            navigate('/login');
+          }
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
+        if (err.response && err.response.status === 401) {
+          // Token has expired, redirect to login page
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
       }
     };
 

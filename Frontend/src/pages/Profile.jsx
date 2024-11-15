@@ -29,12 +29,20 @@ export default function Component() {
           setUser(data)
           setEditedUser(data)
         } else {
-          console.error('Failed to fetch profile data')
-          toast.error('Failed to fetch profile data')
+          console.error('Failed to fetch profile data');
+          if(response.status === 401)
+          {
+            localStorage.removeItem('token');
+            navigate('/login');
+          }
         }
       } catch (error) {
-        console.error('Error fetching profile:', error)
-        toast.error('Error fetching profile')
+        console.error('Error fetching profile:', error);
+        if (err.response && err.response.status === 401) {
+          // Token has expired, redirect to login page
+          localStorage.removeItem('token');
+          navigate('/login');
+        }
       }
     }
 

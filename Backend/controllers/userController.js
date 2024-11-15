@@ -49,12 +49,6 @@ const login_post = async (req, res) => {
             return res.status(401).json({ message: "Invalid user" });
         }
 
-        // Compare the entered password with the stored hashed password
-        // const hashePassword = await bcrypt.hash(password, 10);
-
-// Print both passwords to the console
-console.log("Plaintext password:", password);
-console.log("Hashed password from database:", data.password);
 
         const isMatch = await bcrypt.compare(password, data.password);
         if (!isMatch) {

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link,useLocation,useSearchParams } from 'react-router-dom';
 import foodImage from "/src/assets/indian.jpg";
 import backgroundImage from "/src/assets/Untitled.png";
 import googleLogo from '/src/assets/google.png';
@@ -8,6 +8,9 @@ import { useAuth } from '../components/auth-context';
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -15,7 +18,40 @@ const LoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  useEffect(() => {
+    // Handle Google OAuth redirect
+    const token = searchParams.get('token');
+    const error = searchParams.get('error');
+    const type = searchParams.get('type');
 
+    if (error) {
+      alert(error);
+      return;
+    }
+
+    if (token) {
+      login(token);
+      try {
+        // Decode the JWT to get user information
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+        
+        // Check if the user is an owner
+        const isOwner = payload.isOwner;
+        
+        // Redirect based on user type
+        if (isOwner) {
+          navigate('/ownerdashboard');
+        } else {
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        alert('An error occurred during login');
+      }
+    }
+  }, [searchParams, login, navigate]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -47,7 +83,7 @@ const LoginPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const { login } = useAuth();
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,8 +100,12 @@ const LoginPage = () => {
   
       if (response.ok) {
         const data = await response.json();
-        login(data.token); // Use the login function from context
-        navigate('/');
+        login(data.token);
+        if (formData.isOwner) {
+          navigate('/ownerdashboard');
+        } else {
+          navigate('/');
+        }
       } else {
         const error = await response.json();
         console.error('Error during login:', error.message);

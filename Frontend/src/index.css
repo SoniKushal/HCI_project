@@ -7,6 +7,9 @@ body.modal-open {
 input[type="time"]::-webkit-calendar-picker-indicator{
   filter: invert(24%) sepia(96%) saturate(4470%) hue-rotate(351deg) brightness(92%) contrast(89%);
 }
+input[type="date"]::-webkit-calendar-picker-indicator{
+  filter: invert(24%) sepia(96%) saturate(4470%) hue-rotate(351deg) brightness(92%) contrast(89%);
+}
 
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;

@@ -5,7 +5,7 @@ import './index.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
-import Bookings from './pages/Bookings';
+import Reservation from './pages/Reservations';
 import Dashboard from './pages/OwnerDashboard';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -30,7 +30,7 @@ function App() {
 
             {/* Customer Routes */}
             <Route path="/" element={<Home />} />
-            <Route path="/bookings" element={<Bookings />} />
+            <Route path="/reservations" element={<Reservation />} />
 
             {/* Owner Routes */}
             <Route path="/ownerdashboard" element={<Dashboard />} />

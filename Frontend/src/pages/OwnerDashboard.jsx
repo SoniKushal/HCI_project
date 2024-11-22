@@ -107,7 +107,7 @@ const OwnerDashboard = () => {
         {/* Add Restaurant Button */}
         <button
           onClick={() => setIsAddFormOpen(true)}
-          className="bg-blue-500 text-white rounded-md px-4 py-2 mb-6 hover:bg-blue-600"
+          className="bg-red-500 text-white rounded-md px-4 py-2 mb-6 hover:bg-red-600"
         >
           <FontAwesomeIcon icon={faShop} /> Add Restaurant
         </button>

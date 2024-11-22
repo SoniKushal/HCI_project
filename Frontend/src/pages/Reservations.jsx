@@ -8,6 +8,8 @@ export default function Reservation() {
   const [maxDate, setMaxDate] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [currentTime, setCurrentTime] = useState("");
+  const [closingTime] = useState("22:00"); // Example: 10 PM, replace with actual restaurant closing time
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [capacity, setCapacity] = useState({ twoPerson: 0, fourPerson: 0, sixPerson: 0 });
   const capacityModalRef = useRef(null);
@@ -25,6 +27,20 @@ export default function Reservation() {
 
     setMinDate(today.toISOString().split('T')[0]);
     setMaxDate(sevenDaysLater.toISOString().split('T')[0]);
+    // Calculate current time + 1 hour
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    
+    // Format current time + 1 hour
+    const minHours = hours.toString().padStart(2, "0");
+    const minMinutes = minutes.toString().padStart(2, "0");
+    const minTimeFormatted = `${minHours}:${minMinutes}`;
+
+    // Set the current time to be used in the input field
+    setCurrentTime(minTimeFormatted);
+    
   }, []);
 
 
@@ -88,6 +104,9 @@ export default function Reservation() {
       [type]: Math.max(0, prev[type] + delta),
     }));
   };
+
+  console.log("curretTime", currentTime);
+  console.log("closingTime", closingTime);
 
   return (
     <>
@@ -226,6 +245,8 @@ export default function Reservation() {
                           name="time"
                           value={selectedTime}
                           onChange={(e) => setSelectedTime(e.target.value)}
+                          min="10:00:00" // Current time as minimum
+                          max="21:00:00" // Closing time as maximum
                           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
                           required
                         />

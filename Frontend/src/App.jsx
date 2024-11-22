@@ -12,6 +12,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AddRestaurantForm from './components/AddRestaurantForm';
 import SigninForm from './pages/LoginPage';
 import OwnerRestaurant from './pages/OwnerRestaurant';
+import OwnerProfile from './pages/OwnerProfile';
 import ResetPassword from './pages/ResetPassword';
 import { AuthProvider } from './components/auth-context';
 import AuthMiddleware from './components/AuthMiddleware';
@@ -36,6 +37,7 @@ function App() {
             <Route path="/ownerdashboard" element={<Dashboard />} />
             <Route path="/addrestaurant" element={<AddRestaurantForm />} />
             <Route path="/ownerrestaurant/:restaurantId" element={<OwnerRestaurant />} />
+            <Route path="/ownerprofile" element={<OwnerProfile />} />
 
             {/* Shared Routes */}
             <Route path="/profile" element={<Profile />} />

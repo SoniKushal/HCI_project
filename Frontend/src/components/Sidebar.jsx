@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation , useNavigate } from 'react-router-dom';
-import { FaClipboardList, FaEnvelope, FaChartPie, FaBox, FaCog, FaSignOutAlt } from 'react-icons/fa'; // Import necessary icons
+import { FaClipboardList, FaEnvelope, FaChartPie, FaBox, FaSignOutAlt, FaUser } from 'react-icons/fa'; // Import necessary icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faShop } from '@fortawesome/free-solid-svg-icons'
 import { useAuth } from './auth-context';
@@ -32,27 +32,27 @@ const Sidebar = () => {
         </Link>
         <Link 
           to="/messages" 
-          className={`flex items-center text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/messages' ? 'text-red-600' : 'text-black'}`}
+          className={`flex items-center w-40 h-10 text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/messages' ? 'text-red-600' : 'text-black'}`}
         >
           <FaEnvelope className="ml-6 mr-2" /> Messages
         </Link>
         <Link 
           to="/statistics" 
-          className={`flex items-center text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/statistics' ? 'text-red-600' : 'text-black'}`}
+          className={`flex items-center w-40 h-10 text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/statistics' ? 'text-red-600' : 'text-black'}`}
         >
-          <FaChartPie className="ml-6 mr-2" /> Statistics
+          <FaChartPie className="ml-6 mr-2" />Statistics
         </Link>
         <Link 
           to="/products" 
-          className={`flex items-centern text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/products' ? 'text-red-600' : 'text-black'}`}
+          className={`flex items-center w-40 h-10 text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/products' ? 'text-red-600' : 'text-black'}`}
         >
           <FaBox className="ml-6 mr-2" /> Products
         </Link>
         <Link 
-          to="/settings" 
-          className={`flex items-center text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/settings' ? 'text-red-600' : 'text-black'}`}
+          to="/ownerprofile" 
+          className={`flex items-center w-40 h-10 text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/ownerprofile' ? 'text-red-600 font-semibold border rounded-md border-2 border-red-600 ring-2 ring-red-600' : 'text-black'}`}
         >
-          <FaCog className="ml-6 mr-2" /> Settings
+          <FaUser className="ml-6 mr-2" /> Profile
         </Link>
       </nav>
 

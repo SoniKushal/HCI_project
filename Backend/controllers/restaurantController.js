@@ -163,4 +163,66 @@ const searchRestaurant = async (req, res) => {
     }
 }
 
-module.exports = { addRestaurant, allRestaurant, updateRestaurant, deleteRestaurant, searchRestaurant, GetRestaurantById };
+const allRestaurantForCustomer = async (req, res) => {
+    try {
+        // const userId = req.user._id;
+        // console.log(userId);
+        // if(!userId){
+        //     return res.status(401).json({ message: 'Unauthorized access' });
+        // }
+        const restaurants = await restaurant.find();
+        res.status(200).json({ restaurants });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to fetch restaurants', error: error.message });
+    }
+}
+
+const addReview = async (req, res) => {
+    try {
+        const { restaurantId, rating, comment } = req.body;
+        const userId = req.user._id;
+
+        const Restaurant = await restaurant.findById(restaurantId);
+        if (!Restaurant) {
+            return res.status(404).json({ message: 'Restaurant not found' });
+        }
+
+        // Find the index of existing review
+        const existingReviewIndex = Restaurant.reviews.findIndex(
+            review => review.userId.toString() === userId.toString()
+        );
+
+        if (existingReviewIndex !== -1) {
+            // Update existing review
+            Restaurant.reviews[existingReviewIndex] = {
+                userId,
+                rating,
+                comment,
+                date: new Date()
+            };
+        } else {
+            // Add new review
+            Restaurant.reviews.push({
+                userId,
+                rating,
+                comment,
+                date: new Date()
+            });
+        }
+
+        // Update average rating
+        Restaurant.updateAverageRating();
+        await Restaurant.save();
+
+        res.status(200).json({ 
+            message: existingReviewIndex !== -1 ? 'Review updated successfully' : 'Review added successfully', 
+            restaurant: Restaurant 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to add review', error: error.message });
+    }
+};
+
+module.exports = { addRestaurant, allRestaurant, updateRestaurant, deleteRestaurant, searchRestaurant, GetRestaurantById, allRestaurantForCustomer, addReview };

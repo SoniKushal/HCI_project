@@ -16,6 +16,7 @@ import OwnerProfile from './pages/OwnerProfile';
 import ResetPassword from './pages/ResetPassword';
 import { AuthProvider } from './components/auth-context';
 import AuthMiddleware from './components/AuthMiddleware';
+import Bookings from './pages/Bookings';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             {/* Customer Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/reservations" element={<Reservation />} />
+            <Route path="/reservations/:id" element={<Reservation />} />
 
             {/* Owner Routes */}
             <Route path="/ownerdashboard" element={<Dashboard />} />
@@ -41,6 +43,9 @@ function App() {
 
             {/* Shared Routes */}
             <Route path="/profile" element={<Profile />} />
+
+            {/* Bookings Route */}
+            <Route path="/bookings" element={<Bookings />} />
           </Routes>
         </AuthMiddleware>
       </AuthProvider>

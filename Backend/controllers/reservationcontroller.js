@@ -29,25 +29,42 @@ const isValidBookingTime = (bookingDate, bookingTime) => {
     bookingDateTime.setHours(hours, minutes, 0, 0);
     
     const diffInMinutes = (bookingDateTime - now) / (1000 * 60);
-    return diffInMinutes >= 15;
+    return diffInMinutes >= 60;
 };
 
-const checkAvailability = async (restaurantId, date, time) => {
+const checkAvailability = async (restaurantId, date, time, reservationId = null) => {
     try {
         // Get restaurant details
         const restaurant = await Restuarant.findById(restaurantId);
+
         if (!restaurant) {
             throw new Error('Restaurant not found');
         }
 
+        // Helper function to get slot time
+        const getSlotTime = (baseTime, hourOffset) => {
+            const [hours, minutes] = baseTime.split(':').map(Number);
+            const totalMinutes = hours * 60 + minutes + (hourOffset * 60);
+            return convertMinutesToTime(totalMinutes);
+        };
+
+        // Get times for before and after slots
+        const beforeTime = getSlotTime(time, -1);
+        const afterTime = getSlotTime(time, 1);
+
+        // Check if all times are within business hours
+        const times = [beforeTime, time, afterTime];
+        times.forEach(slotTime => {
+            if (!isWithinBusinessHours(slotTime, restaurant.openingTime, restaurant.closingTime)) {
+                if (slotTime === time) {
+                    throw new Error('Selected time is outside business hours');
+                }
+            }
+        });
+
         // Check if booking time is at least 15 mins in the future
         if (!isValidBookingTime(date, time)) {
-            throw new Error('Reservations must be made at least 15 minutes in advance');
-        }
-
-        // Check if requested time is within business hours
-        if (!isWithinBusinessHours(time, restaurant.openingTime, restaurant.closingTime)) {
-            throw new Error('Selected time is outside business hours');
+            throw new Error('Reservations must be made at least 60 minutes in advance');
         }
 
         // Get all reservations for the requested date
@@ -55,92 +72,113 @@ const checkAvailability = async (restaurantId, date, time) => {
         const startOfDay = new Date(requestedDate.setHours(0, 0, 0, 0));
         const endOfDay = new Date(requestedDate.setHours(23, 59, 59, 999));
 
-        const reservations = await Reservation.find({
+        const reservationQuery = {
             restaurantId,
             date: { $gte: startOfDay, $lte: endOfDay },
             status: 'confirmed'
-        });
-
-        // Calculate occupied tables for each time slot
-        const timeSlots = {};
-        const requestedMinutes = convertTimeToMinutes(time);
-
-        // Check overlapping reservations (considering 60 min duration)
-        const occupiedTables = {
-            twoPerson: 0,
-            fourPerson: 0,
-            sixPerson: 0
-        };
-        reservations.forEach(reservation => {
-            const reservationMinutes = convertTimeToMinutes(reservation.time);
-            if (Math.abs(reservationMinutes - requestedMinutes) < 60) {
-                occupiedTables.twoPerson += reservation.tables.twoPerson;
-                occupiedTables.fourPerson += reservation.tables.fourPerson;
-                occupiedTables.sixPerson += reservation.tables.sixPerson;
-            }
-        });
-
-        // Calculate available tables
-        const availability = {
-            twoPerson: Math.max(0, restaurant.capacity.twoPerson - occupiedTables.twoPerson),
-            fourPerson: Math.max(0, restaurant.capacity.fourPerson - occupiedTables.fourPerson),
-            sixPerson: Math.max(0, restaurant.capacity.sixPerson - occupiedTables.sixPerson)
         };
         
-        // Find next available time
-        let nextAvailable = {};
-        if (Object.values(availability).some(v => v === 0)) {
-            let nextTime = requestedMinutes + 60;
-            while (nextTime <= convertTimeToMinutes(restaurant.closingTime)) {
-                const checkTime = convertMinutesToTime(nextTime);
-                const isSlotAvailable = !reservations.some(reservation => {
-                    const reservationMinutes = convertTimeToMinutes(reservation.time);
-                    return Math.abs(reservationMinutes - nextTime) < 60;
-                });
-
-                if (isSlotAvailable) {
-                    nextAvailable = {
-                        time: checkTime,
-                        tables: {
-                            twoPerson: restaurant.capacity.twoPerson,
-                            fourPerson: restaurant.capacity.fourPerson,
-                            sixPerson: restaurant.capacity.sixPerson
-                        }
-                    };
-                    break;
-                }
-                nextTime += 60;
-            }
+        if (reservationId) {
+            reservationQuery._id = { $ne: reservationId };
         }
 
-        return {
-            currentAvailability: availability,
-            nextAvailable: nextAvailable
+        const reservations = await Reservation.find(reservationQuery);
+
+        // Function to calculate available tables for a specific time
+        const calculateAvailability = (checkTime) => {
+            const checkMinutes = convertTimeToMinutes(checkTime);
+            const occupiedTables = {
+                twoPerson: 0,
+                fourPerson: 0,
+                sixPerson: 0
+            };
+
+            reservations.forEach(reservation => {
+                const reservationMinutes = convertTimeToMinutes(reservation.time);
+                if (Math.abs(reservationMinutes - checkMinutes) < 60) {
+                    occupiedTables.twoPerson += reservation.tables.twoPerson;
+                    occupiedTables.fourPerson += reservation.tables.fourPerson;
+                    occupiedTables.sixPerson += reservation.tables.sixPerson;
+                }
+            });
+
+            return {
+                twoPerson: Math.max(0, restaurant.capacity.twoPerson - occupiedTables.twoPerson),
+                fourPerson: Math.max(0, restaurant.capacity.fourPerson - occupiedTables.fourPerson),
+                sixPerson: Math.max(0, restaurant.capacity.sixPerson - occupiedTables.sixPerson)
+            };
         };
+
+        // Calculate availability for all three time slots
+        const availability = {
+            beforeSlot: {
+                time: beforeTime,
+                tables: isWithinBusinessHours(beforeTime, restaurant.openingTime, restaurant.closingTime) && isValidBookingTime(requestedDate, beforeTime)
+                    ? calculateAvailability(beforeTime)
+                    : { twoPerson: 0, fourPerson: 0, sixPerson: 0 }
+            },
+            currentSlot: {
+                time: time,
+                tables: calculateAvailability(time)
+            },
+            afterSlot: {
+                time: afterTime,
+                tables: isWithinBusinessHours(afterTime, restaurant.openingTime, restaurant.closingTime) && isValidBookingTime(requestedDate, beforeTime)
+                    ? calculateAvailability(afterTime)
+                    : { twoPerson: 0, fourPerson: 0, sixPerson: 0 }
+            }
+        };
+
+        return availability;
     } catch (error) {
         throw error;
     }
 };
 
 // Function to create reservation
-const createReservation = async (req,res) => {
+const createReservation = async (req, res) => {
     try {
-        const {restaurantId,date,time,tables} = req.body;
+        const { restaurantId, date, time, tables, specialRequest } = req.body;
         const userId = req.user._id;
-        
-        // Check if booking time is at least 15 mins in the future
-        if (!isValidBookingTime(date, time)) {
-            return res.status(400).json({ message: "Reservations must be made at least 15 minutes in advance" });
+
+        // Validate at least one table is selected
+        const totalTables = tables.twoPerson + tables.fourPerson + tables.sixPerson;
+        if (totalTables === 0) {
+            return res.status(400).json({ message: "Please select at least one table" });
         }
 
-        
+        // Check if booking time is at least 60 mins in the future
+        if (!isValidBookingTime(date, time)) {
+            return res.status(400).json({ message: "Reservations must be made at least 60 minutes in advance" });
+        }
+
         const availabilityCheck = await checkAvailability(restaurantId, date, time);
-        
+
         // Verify if requested tables are available
-        if (tables.twoPerson > availabilityCheck.currentAvailability.twoPerson ||
-            tables.fourPerson > availabilityCheck.currentAvailability.fourPerson ||
-            tables.sixPerson > availabilityCheck.currentAvailability.sixPerson) {
-            return res.status(400).json({message:"Requested tables are not available"})
+        if (tables.twoPerson > availabilityCheck.currentSlot.tables[2] ||
+            tables.fourPerson > availabilityCheck.currentSlot.tables[4] ||
+            tables.sixPerson > availabilityCheck.currentSlot.tables[6]) {
+            return res.status(400).json({ message: "Requested tables are not available" });
+        }
+
+        // Generate unique entry code
+        const generateEntryCode = () => {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return code;
+        };
+
+        let entryCode;
+        let isCodeUnique = false;
+        while (!isCodeUnique) {
+            entryCode = generateEntryCode();
+            const existingReservation = await Reservation.findOne({ entryCode });
+            if (!existingReservation) {
+                isCodeUnique = true;
+            }
         }
 
         // Create new reservation
@@ -149,22 +187,34 @@ const createReservation = async (req,res) => {
             userId,
             date,
             time,
-            tables,
+            tables: {
+                twoPerson: tables.twoPerson || 0,
+                fourPerson: tables.fourPerson || 0,
+                sixPerson: tables.sixPerson || 0
+            },
+            specialRequest: specialRequest || '',
+            entryCode,
             status: 'confirmed'
         });
 
         await reservation.save();
-         res.status(200).json(reservation);
+        
+        res.status(200).json({
+            message: "Reservation created successfully",
+            reservation,
+            entryCode
+        });
     } catch (error) {
         console.log(error);
-        res.status(400).json({message:error.message});
+        res.status(400).json({ message: error.message });
     }
 };
-
 const checkAvailaity_Controller = async(req,res)=>{
     try {
-        const {restaurantId, date, time} = req.body;
-        const availability = await checkAvailability(restaurantId,date,time);
+        const {restaurantId, date, time, reservationId} = req.body;
+        
+        // If updating, pass the reservationId to exclude from availability check
+        const availability = await checkAvailability(restaurantId, date, time, reservationId);
         res.status(200).json({availability});
     } catch (error) {
         console.log(error);
@@ -173,9 +223,9 @@ const checkAvailaity_Controller = async(req,res)=>{
 }
 
 
-const updateReservation = async (req,res) => {
+const updateReservation = async (req, res) => {
     try {
-        const {updates} = req.body;
+        const { updates } = req.body;
         const reservationId = req.params.reservationId;
         const userId = req.user._id;
         const existingReservation = await Reservation.findOne({_id:reservationId});
@@ -196,7 +246,7 @@ const updateReservation = async (req,res) => {
             const checkTime = updates.time || existingReservation.time;
             
             if (!isValidBookingTime(checkDate, checkTime)) {
-                return res.status(400).json({message: "Updated reservation time must be at least 15 minutes in advance"});
+                return res.status(400).json({message: "Updated reservation time must be at least 60 minutes in advance"});
             }
         }
 
@@ -252,13 +302,22 @@ const updateReservation = async (req,res) => {
             }
         }
 
-        // If all validations pass, update the reservation
+        // Validate at least one table is selected if tables are being updated
+        if (updates.tables) {
+            const totalTables = updates.tables.twoPerson + updates.tables.fourPerson + updates.tables.sixPerson;
+            if (totalTables === 0) {
+                return res.status(400).json({ message: "Please select at least one table" });
+            }
+        }
+
+        // Update the reservation
         const updatedReservation = await Reservation.findByIdAndUpdate(
             reservationId,
             {
                 ...(updates.date && { date: updates.date }),
                 ...(updates.time && { time: updates.time }),
-                ...(updates.tables && { tables: updates.tables })
+                ...(updates.tables && { tables: updates.tables }),
+                ...(updates.specialRequest !== undefined && { specialRequest: updates.specialRequest })
             },
             { new: true }
         );
@@ -311,4 +370,26 @@ const deleteReservation = async (req,res ) => {
     }
 };
 
-module.exports = {checkAvailaity_Controller,createReservation,updateReservation,deleteReservation}
+const getUserReservations = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const reservations = await Reservation.find({ userId })
+      .populate('restaurantId', 'name') // Populate restaurant details
+      .sort({ date: 1, time: 1 }); // Sort by date and time
+
+    res.status(200).json({
+      reservations: reservations.map(reservation => ({
+        ...reservation.toObject(),
+        restaurant: {
+          name: reservation.restaurantId.name,
+          id: reservation.restaurantId._id
+        }
+      }))
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+module.exports = {checkAvailaity_Controller,createReservation,updateReservation,deleteReservation,getUserReservations}

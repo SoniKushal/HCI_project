@@ -64,6 +64,7 @@ router.put(
 );
 
 router.get('/allRestaurant', validatetoken, restaurantController.allRestaurant);
+router.get('/allRestaurantForCustomer', validatetoken,restaurantController.allRestaurantForCustomer);
 router.delete('/delete/:id', validatetoken, restaurantController.deleteRestaurant);
 router.get('/searchRestaurant', validatetoken, restaurantController.searchRestaurant);
 router.get('/:id',validatetoken,restaurantController.GetRestaurantById)
@@ -123,5 +124,7 @@ router.get('/images/:filename', async (req, res) => {
     readstream.pipe(res);
 
 });
+
+router.post('/review', validatetoken, restaurantController.addReview);
 
 module.exports = router;

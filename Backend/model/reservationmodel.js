@@ -10,6 +10,8 @@ const reservationSchema = new mongoose.Schema({
     fourPerson: { type: Number, default: 0 },
     sixPerson: { type: Number, default: 0 }
   },
+  specialRequest: { type: String, default: '' },
+  entryCode: { type: String, required: true, unique: true },
   status: { type: String, enum: ['confirmed', 'cancelled'] }
 });
 

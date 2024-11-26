@@ -1,18 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const RestaurantCard = ({ name, address, rating, imageUrl, isOwner = false , restaurantId }) => {
+const RestaurantCard = ({ id, name, address, imageUrl, isOwner = false }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
     if (isOwner) {
-      // Redirect to the OwnerRestaurant page for owners
-      navigate(`/ownerrestaurant/${restaurantId}`);
+      navigate(`/ownerrestaurant/${id}`);
     } else {
-      // Redirect to the RestaurantDetails page for customers
-      // Uncomment and replace with actual route when implementing
-      // navigate('/restaurant-details');
-      console.log('Redirect to Restaurant Details page for customers');
+      navigate(`/reservations/${id}`);
     }
   };
 

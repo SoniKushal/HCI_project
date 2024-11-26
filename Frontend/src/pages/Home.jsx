@@ -1,4 +1,4 @@
-import React from 'react';
+import React , {useState,useEffect} from 'react';
 import Header from '../components/Header';
 import OfferSlider from '../components/Slider';
 import CuisineList from '../components/CuisineList';
@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa'; // Icons for arrows
 import Slider from 'react-slick'; // Import Slider from react-slick
+import axios from 'axios';
 
 const offers = [
  'src/assets/offer1.jpg',
@@ -16,51 +17,24 @@ const offers = [
 ]
 
 const Home = () => {
-  const restaurants = [
-    {
-      id: 1,
-      name: 'The Spice Room',
-      address: '123 Main Street, City',
-      rating: 4.5,
-      image: 'src/assets/restaurant1.jpg',
-    },
-    {
-      id: 2,
-      name: 'La Piazza',
-      address: '456 Elm Street, City',
-      rating: 4.7,
-      image: 'src/assets/restaurant2.jpg',
-    },
-    {
-      id: 3,
-      name: 'Sushi World',
-      address: '789 Ocean Drive, City',
-      rating: 4.8,
-      image: 'src/assets/restaurant1.jpg',
-    },
-    {
-      id: 4,
-      name: 'Burger Haven',
-      address: '321 Burger Lane, City',
-      rating: 4.6,
-      image: 'src/assets/restaurant2.jpg',
-    },
-    {
-      id: 5,
-      name: 'Pasta Palace',
-      address: '654 Pasta Road, City',
-      rating: 4.9,
-      image: 'src/assets/restaurant1.jpg',
-    },
-    {
-      id: 6,
-      name: 'Taco Town',
-      address: '987 Taco Way, City',
-      rating: 4.7,
-      image: 'src/assets/restaurant2.jpg',
-    },
-  ];
-
+  const [restaurants, setRestaurants] = useState([]);
+  const token = localStorage.getItem('token');
+  useEffect(() => {
+    const fetchRestaurants = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/restaurant/allRestaurantForCustomer',{
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+       });
+        console.log(response);
+        setRestaurants(response.data.restaurants);
+      } catch (error) {
+        console.error('Error fetching restaurants:', error);
+      }
+    };
+    fetchRestaurants();
+  }, []);
   // Slider settings
   const settings = {
     dots: true,
@@ -101,8 +75,13 @@ const Home = () => {
           <div className="overflow-hidden">
             <Slider {...settings}>
               {restaurants.map((restaurant) => (
-                <div key={restaurant.id}>
-                  <RestaurantCard {...restaurant} />
+                <div key={restaurant._id}>
+                  <RestaurantCard 
+                    id={restaurant._id}
+                    name={restaurant.name}
+                    address={restaurant.location}
+                    imageUrl={`http://localhost:4000/restaurant/images/${restaurant.image[0]}`}
+                  />
                 </div>
               ))}
             </Slider>

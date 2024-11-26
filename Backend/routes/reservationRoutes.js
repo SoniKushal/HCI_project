@@ -7,4 +7,5 @@ router.post('/checkAvailability',validatetoken, reservationController.checkAvail
 router.post('/createReservation',validatetoken,reservationController.createReservation);
 router.put('/updateReservation/:reservationId', validatetoken, reservationController.updateReservation)
 router.delete('/deleteReservation/:reservationId', validatetoken, reservationController.deleteReservation);
+router.get('/user-reservations', validatetoken, reservationController.getUserReservations);
 module.exports = router;

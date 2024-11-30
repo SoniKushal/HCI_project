@@ -1,5 +1,5 @@
 import React, { useState , useEffect } from 'react';
-
+import toast from 'react-hot-toast';
 
 const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }) => {
 
@@ -57,87 +57,78 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-
       const formData = new FormData();
+
       formData.append('name', name);
       formData.append('location', location);
       formData.append('capacity', JSON.stringify(capacity));
-      formData.append('cuisines', cuisines);
+      formData.append('cuisines', JSON.stringify(cuisines)); // Stringify array
       formData.append('openingTime', `${openingHours.openHour}:${openingHours.openMinute}`);
       formData.append('closingTime', `${openingHours.closeHour}:${openingHours.closeMinute}`);
       formData.append('phoneNumber', phoneNumber);
 
-      const ambienceImageFiles = await Promise.all(
-        ambienceImages.map(async (img) => {
-          if (img instanceof File) return img;
-          // Convert non-File type image to File
-          return await urlToFile(`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`, img, 'image/jpeg');
-        })
-      );
-  
-      ambienceImageFiles.forEach((file) => {
-        formData.append('image', file);
-      });
-  
-      // import.meta menu images similarly
-      const menuImageFiles = await Promise.all(
-        menuImages.map(async (img) => {
-          if (img instanceof File) return img;
-          return await urlToFile(`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`, img, 'image/jpeg');
-        })
-      );
-  
-      menuImageFiles.forEach((file) => {
-        formData.append('menuImage', file);
-      });
+      // Handle ambience images
+      for (let i = 0; i < ambienceImages.length; i++) {
+        const img = ambienceImages[i];
+        if (img instanceof File) {
+          formData.append('image', img);
+        } else if (typeof img === 'string' && img.startsWith('http')) {
+          // For existing images, send the filename only
+          const filename = img.split('/').pop();
+          formData.append('existingImages', filename);
+        }
+      }
+
+      // Handle menu images
+      for (let i = 0; i < menuImages.length; i++) {
+        const img = menuImages[i];
+        if (img instanceof File) {
+          formData.append('menuImage', img);
+        } else if (typeof img === 'string' && img.startsWith('http')) {
+          // For existing images, send the filename only
+          const filename = img.split('/').pop();
+          formData.append('existingMenuImages', filename);
+        }
+      }
 
       const endpoint = isEditing
         ? `${import.meta.env.VITE_BACKEND_URL}/restaurant/updateRestaurant/${restaurantData._id}`
         : `${import.meta.env.VITE_BACKEND_URL}/restaurant/addRestaurant`;
 
-      const method = isEditing ? 'PUT' : 'POST';
-
       const response = await fetch(endpoint, {
-        method,
+        method: isEditing ? 'PUT' : 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
         body: formData,
       });
 
-      if (response.ok) {
-        const resData = await response.json();
-        const newRestaurant = {
-          ...resData.restaurant,
-          imageUrl: `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${resData.restaurant.image[0]}`,
-        };
-
-        // if (isEditing) {
-        //   // Perform any update logic for edited restaurant
-        //   addRestaurant(newRestaurant);
-        // } else {
-        //   // If adding a new restaurant, add it to the parent list
-        //   addRestaurant(newRestaurant);
-        // }
-        addRestaurant(newRestaurant);
-        // Reset the form fields after successful submission
-        setName('');
-        setLocation('');
-        setAmbienceImages([]);
-        setMenuImages([]);
-        setCapacity({ twoPerson: 0, fourPerson: 0, sixPerson: 0 });
-        setCuisines([]);
-        setOpeningHours({ openHour: '00', openMinute: '00', closeHour: '00', closeMinute: '00' });
-        setPhoneNumber('');
-        setShowPreview(false);
-        setShowPreview1(false);
-
-        onClose();
-      } else {
-        console.error('Error adding/updating restaurant:', response.statusText);
+      if (!response.ok) {
+        throw new Error('Failed to save restaurant');
       }
+
+      const result = await response.json();
+      
+      // Transform the returned data to include full image URLs
+      const updatedRestaurant = {
+        ...result.restaurant,
+        image: result.restaurant.image.map(img => 
+          `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`
+        ),
+        menuImage: result.restaurant.menuImage.map(img => 
+          `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`
+        )
+      };
+
+      if (addRestaurant) {
+        addRestaurant(updatedRestaurant);
+      }
+      
+      toast.success(isEditing ? 'Restaurant updated successfully!' : 'Restaurant added successfully!');
+      onClose();
     } catch (error) {
-      console.error('Error during submit:', error);
+      console.error('Error saving restaurant:', error);
+      toast.error(error.message || 'Failed to save restaurant');
     }
   };
 
@@ -153,6 +144,31 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
     const files = Array.from(e.target.files);
     setMenuImages((prevFiles) => [...prevFiles, ...files]);
     setShowPreview1(files.length > 0); // Show preview button if files are uploaded
+  };
+
+  // Update image preview rendering
+  const renderImagePreview = (file, index) => {
+    let imageUrl;
+    if (file instanceof File) {
+      imageUrl = URL.createObjectURL(file);
+    } else if (typeof file === 'string') {
+      imageUrl = file.startsWith('http') 
+        ? file 
+        : `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${file}`;
+    }
+
+    return (
+      <li key={index} className="text-sm text-gray-600">
+        <img
+          src={imageUrl}
+          alt={`Image ${index + 1}`}
+          className="w-full h-24 object-cover rounded"
+        />
+        <p className="text-center mt-1">
+          {file instanceof File ? file.name : `Image ${index + 1}`}
+        </p>
+      </li>
+    );
   };
 
   return (
@@ -222,16 +238,7 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
                   </button>
                   <h2 className="mb-2 text-xl font-semibold">Uploaded Images Preview:</h2>
                   <ul className="grid grid-cols-3 gap-4">
-                    {ambienceImages.map((file, index) => (
-                      <li key={index} className="text-sm text-gray-600">
-                        <img
-                          src={file instanceof File ? URL.createObjectURL(file) : `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${file}`} // Use URL for existing images
-                          alt={`Ambience ${index + 1}`}
-                          className="w-full h-24 object-cover rounded"
-                        />
-                        <p className="text-center mt-1">{file instanceof File ? file.name : `Image ${index + 1}`}</p>
-                      </li>
-                    ))}
+                    {ambienceImages.map(renderImagePreview)}
                   </ul>
                 </div>
               </div>
@@ -366,16 +373,7 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
                   </button>
                   <h2 className="mb-2 text-xl font-semibold">Uploaded Images Preview:</h2>
                   <ul className="grid grid-cols-3 gap-4">
-                    {menuImages.map((file, index) => (
-                      <li key={index} className="text-sm text-gray-600">
-                        <img
-                          src={file instanceof File ? URL.createObjectURL(file) : `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${file}`} // Use URL for existing images
-                          alt={`Menu ${index + 1}`}
-                          className="w-full h-24 object-cover rounded"
-                        />
-                        <p className="text-center mt-1">{file instanceof File ? file.name : `Image ${index + 1}`}</p>
-                      </li>
-                    ))}
+                    {menuImages.map(renderImagePreview)}
                   </ul>
                 </div>
               </div>

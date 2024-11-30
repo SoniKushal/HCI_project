@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import foodImage from "/src/assets/indian.jpg";
 import backgroundImage from "/src/assets/Untitled.png";
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import toast from 'react-hot-toast';
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -68,12 +69,12 @@ const SignupPage = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('Signup successful:', data);
-      
-        navigate('/'); // Redirect to home page on success
+        toast.success('Account created successfully!');
+        navigate('/login');
       } else {
         const error = await response.json();
         console.error('Error during signup:', error.message);
-        alert(error.message); // Show error message
+        toast.error(error.message);
       }
     } catch (error) {
       console.error('Error during signup:', error);

@@ -9,6 +9,9 @@ import LocationPopup from './LocationPopup';
 import { useAuth } from './auth-context';
 
 
+const Header = ({ onLocationChange, onSearchChange }) => {
+
+
 
 const Header = ({ onLocationChange, onSearchChange }) => {
 
@@ -77,29 +80,17 @@ const Header = ({ onLocationChange, onSearchChange }) => {
   };
 
 
-
   const handleLocationSelect = (location) => {
-
     setSelectedLocation(location);
-
     setShowLocationPopup(false);
-
     onLocationChange(location);
-
   };
-
-
 
   const handleSearch = (e) => {
-
     const value = e.target.value;
-
     setSearchTerm(value);
-
     onSearchChange(value);
-
   };
-
 
 
   useEffect(() => {
@@ -185,6 +176,7 @@ const Header = ({ onLocationChange, onSearchChange }) => {
           placeholder="Search for cities, restaurants, etc."
 
           value={searchTerm}
+
 
           onChange={handleSearch}
 

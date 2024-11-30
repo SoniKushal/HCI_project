@@ -17,24 +17,46 @@ import ResetPassword from './pages/ResetPassword';
 import { AuthProvider } from './components/auth-context';
 import AuthMiddleware from './components/AuthMiddleware';
 import Bookings from './pages/Bookings';
+import { Toaster } from 'react-hot-toast';
 import OwnerBookings from './pages/OwnerBookings';
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AuthMiddleware>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<SigninForm />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password/:token" element={<ResetPassword />} />
+    <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#333',
+            color: '#fff',
+          },
+          success: {
+            style: {
+              background: '#22c55e',
+            },
+          },
+          error: {
+            style: {
+              background: '#ef4444',
+            },
+          },
+        }}
+      />
+      <Router>
+        <AuthProvider>
+          <AuthMiddleware>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/login" element={<SigninForm />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-            {/* Customer Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/reservations" element={<Reservation />} />
-            <Route path="/reservations/:id" element={<Reservation />} />
+              {/* Customer Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/reservations" element={<Reservation />} />
+              <Route path="/reservations/:id" element={<Reservation />} />
 
             {/* Owner Routes */}
             <Route path="/ownerdashboard" element={<Dashboard />} />
@@ -43,15 +65,16 @@ function App() {
             <Route path="/ownerprofile" element={<OwnerProfile />} />
             <Route path="/ownerbookings" element={<OwnerBookings />} />
 
-            {/* Shared Routes */}
-            <Route path="/profile" element={<Profile />} />
+              {/* Shared Routes */}
+              <Route path="/profile" element={<Profile />} />
 
-            {/* Bookings Route */}
-            <Route path="/bookings" element={<Bookings />} />
-          </Routes>
-        </AuthMiddleware>
-      </AuthProvider>
-    </Router>
+              {/* Bookings Route */}
+              <Route path="/bookings" element={<Bookings />} />
+            </Routes>
+          </AuthMiddleware>
+        </AuthProvider>
+      </Router>
+    </>
   );
 }
 

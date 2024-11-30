@@ -26,7 +26,7 @@ const OwnerRestaurant = () => {
       try {
         //console.log("Fetching restaurant with ID:", restaurantId);
         const token = localStorage.getItem('token');
-        const res = await axios.get(`http://localhost:4000/restaurant/${restaurantId}`, {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/restaurant/${restaurantId}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -52,7 +52,7 @@ const OwnerRestaurant = () => {
   }
   const handleDelete = async () => {
     try {
-      const response = await axios.delete(`http://localhost:4000/restaurant/delete/${restaurant._id}`, {
+      const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/restaurant/delete/${restaurant._id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`, // Assumes you have a JWT token stored
         },

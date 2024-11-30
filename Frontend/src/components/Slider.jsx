@@ -21,13 +21,14 @@ const OfferSlider = ({ images, slidesToShow = 1 }) => {
     <Slider {...settings} className='z-0'>
       {images.map((image,index) => (
         <div key={`${image}-${index}`}>
-          <img src={`http://localhost:4000/restaurant/images/${image}`} alt={`Offer ${image}`} className="w-full h-80 object-cover" />
+          <img src={`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${image}`} alt={`Offer ${image}`} className="w-full h-80 object-cover" />
           {/* {console.log(image)} */}
         </div>
       ))}
     </Slider>
   );
 };
+
 
 // Custom next arrow component
 const SampleNextArrow = (props) => {

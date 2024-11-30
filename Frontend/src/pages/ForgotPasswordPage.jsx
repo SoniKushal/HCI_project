@@ -14,7 +14,7 @@ const ForgotPasswordPage = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:4000/auth/forgot-password', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -22,7 +22,7 @@ const Home = () => {
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/restaurant/allRestaurantForCustomer',{
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/restaurant/allRestaurantForCustomer`,{
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -80,7 +80,7 @@ const Home = () => {
                     id={restaurant._id}
                     name={restaurant.name}
                     address={restaurant.location}
-                    imageUrl={`http://localhost:4000/restaurant/images/${restaurant.image[0]}`}
+                    imageUrl={`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${restaurant.image[0]}`}
                   />
                 </div>
               ))}

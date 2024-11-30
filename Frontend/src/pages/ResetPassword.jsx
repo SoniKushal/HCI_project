@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
     if (!validatePasswords()) return;
 
     try {
-      const response = await fetch(`http://localhost:4000/auth/reset-password/${token}`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/reset-password/${token}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

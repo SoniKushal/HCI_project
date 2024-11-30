@@ -57,7 +57,7 @@ const SignupPage = () => {
     if (!validateFields()) return;
 
     try {
-      const response = await fetch('http://localhost:4000/auth/signup', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

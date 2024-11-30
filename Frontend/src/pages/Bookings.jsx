@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
 import { FaCalendar, FaClock, FaUsers, FaTicketAlt, FaStar, FaEdit, FaTimes } from 'react-icons/fa';
-
+import toast from 'react-hot-toast';
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);
   const [reviewModal, setReviewModal] = useState(false);
@@ -32,10 +32,11 @@ const Bookings = () => {
       await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/reservation/deleteReservation/${reservationId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+      toast.success('Booking cancelled successfully');
       fetchBookings(); // Refresh bookings after cancellation
     } catch (error) {
       console.error('Error cancelling reservation:', error);
-      alert(error.response?.data?.message || 'Error cancelling reservation');
+      toast.error(error.response?.data?.message || 'Error cancelling reservation');  
     }
   };
 
@@ -63,9 +64,9 @@ const Bookings = () => {
       setReviewModal(false);
       setReview({ rating: 5, comment: '' }); // Reset form
       fetchBookings(); // Refresh bookings to show updated data
-      alert('Review submitted successfully!');
+      toast.success('Review submitted successfully!');
     } catch (error) {
-      alert(error.response?.data?.message || 'Error submitting review');
+      toast.error(error.response?.data?.message || 'Error submitting review');
     }
   };
 

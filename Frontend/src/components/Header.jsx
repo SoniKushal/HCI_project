@@ -4,7 +4,7 @@ import { FaUserCircle, FaMapMarkerAlt, FaSearch, FaUser, FaClipboardList } from 
 import LocationPopup from './LocationPopup';
 import { useAuth } from './auth-context';
 
-const Header = () => {
+const Header = ({ onLocationChange, onSearchChange }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -38,6 +38,18 @@ const Header = () => {
     // No navigation needed - just let the UI update based on auth state
   };
 
+  const handleLocationSelect = (location) => {
+    setSelectedLocation(location);
+    setShowLocationPopup(false);
+    onLocationChange(location);
+  };
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    onSearchChange(value);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -69,10 +81,7 @@ const Header = () => {
         </button>
         {showLocationPopup && (
           <LocationPopup
-            setSelectedLocation={(location) => {
-              setSelectedLocation(location);
-              setShowLocationPopup(false);
-            }}
+            setSelectedLocation={handleLocationSelect}
             closePopup={() => setShowLocationPopup(false)}
           />
         )}
@@ -83,7 +92,7 @@ const Header = () => {
           type="text"
           placeholder="Search for cities, restaurants, etc."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={handleSearch}
           className="border border-gray-300 rounded-full w-full py-2 px-4 pl-10 focus:outline-none focus:ring focus:ring-blue-500"
         />
         <FaSearch className="absolute left-3 top-2.5 text-gray-500" />

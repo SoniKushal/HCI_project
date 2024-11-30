@@ -5,6 +5,7 @@ import backgroundImage from "/src/assets/Untitled.png";
 import googleLogo from '/src/assets/google.png';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { useAuth } from '../components/auth-context';
+import toast from 'react-hot-toast';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -103,6 +104,7 @@ const LoginPage = () => {
       if (response.ok) {
         const data = await response.json();
         login(data.token);
+        toast.success('Successfully logged in!');
         if (formData.isOwner) {
           navigate('/ownerdashboard');
         } else {
@@ -111,7 +113,7 @@ const LoginPage = () => {
       } else {
         const error = await response.json();
         console.error('Error during login:', error.message);
-        alert(error.message);
+        toast.error(error.message);
       }
     } catch (error) {
       console.error('Error during login:', error);

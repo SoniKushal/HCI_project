@@ -10,54 +10,101 @@ import Slider from 'react-slick'; // Import Slider from react-slick
 import axios from 'axios';
 
 const offers = [
- 'src/assets/offer1.jpg',
-'src/assets/offer2.jpg',
- 'src/assets/offer3.jpg',
- 'src/assets/offer4.jpg',
+  'src/assets/o1.jpg',
+'src/assets/o2.png',
+  'src/assets/o3.jpg',
+  'src/assets/offer7.png',
+  'src/assets/offer6.png'
 ]
 
 const Home = () => {
   const [restaurants, setRestaurants] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCuisine, setSelectedCuisine] = useState('');
   const token = localStorage.getItem('token');
+
+  // Fetch restaurants on component mount
   useEffect(() => {
     const fetchRestaurants = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/restaurant/allRestaurantForCustomer`,{
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/restaurant/allRestaurantForCustomer`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
-       });
-        console.log(response);
+        });
         setRestaurants(response.data.restaurants);
+        setFilteredRestaurants(response.data.restaurants);
       } catch (error) {
         console.error('Error fetching restaurants:', error);
       }
     };
     fetchRestaurants();
   }, []);
+
+  // Apply filters whenever filter criteria change
+  useEffect(() => {
+    let result = restaurants;
+
+    // Filter by location
+    if (selectedLocation) {
+      result = result.filter(restaurant => 
+        restaurant.location.toLowerCase().includes(selectedLocation.toLowerCase())
+      );
+    }
+
+    // Filter by search term (restaurant name)
+    if (searchTerm) {
+      result = result.filter(restaurant =>
+        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by cuisine
+    if (selectedCuisine) {
+      result = result.filter(restaurant =>
+        restaurant.cuisines.includes(selectedCuisine)
+      );
+    }
+
+    setFilteredRestaurants(result);
+  }, [selectedLocation, searchTerm, selectedCuisine, restaurants]);
+
+  const handleLocationChange = (location) => {
+    setSelectedLocation(location);
+  };
+
+  const handleSearchChange = (term) => {
+    setSearchTerm(term);
+  };
+
+  const handleCuisineSelect = (cuisine) => {
+    setSelectedCuisine(cuisine === selectedCuisine ? '' : cuisine);
+  };
+
   // Slider settings
   const settings = {
     dots: true,
-    infinite: true,
+    infinite: false,
     speed: 500,
-    slidesToShow: 4, // Number of cards to show at once
+    slidesToShow: Math.min(4, filteredRestaurants.length),
     slidesToScroll: 1,
     autoplay: false,
-    autoplaySpeed: 3000,
     nextArrow: <SampleNextArrow />,
     prevArrow: <SamplePrevArrow />,
     responsive: [
       {
         breakpoint: 1024,
         settings: {
-          slidesToShow: 2, // Show two cards on medium screens
+          slidesToShow: Math.min(2, filteredRestaurants.length),
           slidesToScroll: 1,
         },
       },
       {
         breakpoint: 600,
         settings: {
-          slidesToShow: 1, // Show one card on small screens
+          slidesToShow: 1,
           slidesToScroll: 1,
         },
       },
@@ -66,18 +113,28 @@ const Home = () => {
 
   return (
     <>
-      <Header />
+      <Header 
+        onLocationChange={handleLocationChange}
+        onSearchChange={handleSearchChange}
+      />
       <main className="p-4 bg-background">
         <OfferSlider images={offers}/>
-        <CuisineList className='px-4'/>
+        <CuisineList 
+          onCuisineSelect={handleCuisineSelect}
+          selectedCuisine={selectedCuisine}
+        />
         <section className="mt-8 px-10">
-          <h2 className="text-2xl mb-4">Restaurants Near You</h2>
+          <h2 className="text-2xl mb-4">
+            {filteredRestaurants.length === 0 
+              ? "No restaurants found" 
+              : "Restaurants Near You"}
+          </h2>
           <div className="overflow-hidden">
             <Slider {...settings}>
-              {restaurants.map((restaurant) => (
+              {filteredRestaurants.map((restaurant) => (
                 <div key={restaurant._id}>
                   <RestaurantCard 
-                    id={restaurant._id}
+                    restaurantId={restaurant._id}
                     name={restaurant.name}
                     address={restaurant.location}
                     imageUrl={`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${restaurant.image[0]}`}

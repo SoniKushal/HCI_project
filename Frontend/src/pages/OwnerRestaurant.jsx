@@ -7,13 +7,18 @@ import Slider from '../components/Slider'; // Import Slider component
 import { FaStar, FaEdit, FaTrash } from 'react-icons/fa';
 import { useParams , useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../components/auth-context'; // Import useAuth
+import toast from 'react-hot-toast';
+
 const OwnerRestaurant = () => {
-  const { restaurantId } = useParams();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth(); // Get user from auth context
   const [restaurant, setRestaurant] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State to manage sidebar visibility
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [loading, setLoading] = useState(true); // Loading state
-  const navigate = useNavigate();
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -21,31 +26,83 @@ const OwnerRestaurant = () => {
   const handleFormClose = () => setIsFormOpen(false);
 
   useEffect(() => {
-    const fetchRestaurant = async () => {
-      setLoading(true); // Set loading to true before fetching data
-      try {
-        //console.log("Fetching restaurant with ID:", restaurantId);
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/restaurant/${restaurantId}`, {
+    // Check if user is logged in
+    if (!user) {
+      toast.error('Please login to view restaurant details');
+      navigate('/login');
+      return;
+    }
+    
+    fetchRestaurantDetails();
+  }, [id, user, navigate]);
+
+  const fetchRestaurantDetails = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/restaurant/${id}`,
+        {
           headers: {
             Authorization: `Bearer ${token}`
           }
-        })
-        setRestaurant(res.data.restaurantData);
-      } catch (error) {
-        console.error("Error fetching restaurant:", error);
+        }
+      );
+
+      console.log('Raw response:', response.data); // Debug log
+
+      if (!response.data || !response.data.restaurantData) {
+        throw new Error('Invalid response data structure');
+      }
+
+      const data = response.data.restaurantData;
+
+      // Transform the data with proper URL construction
+      const restaurantData = {
+        ...data,
+        // Handle both array and string cases for images
+        image: Array.isArray(data.image) 
+          ? data.image.map(img => typeof img === 'string' 
+              ? `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`
+              : img)
+          : [],
+        menuImage: Array.isArray(data.menuImage)
+          ? data.menuImage.map(img => typeof img === 'string'
+              ? `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`
+              : img)
+          : [],
+        ambianceImage: Array.isArray(data.ambianceImage)
+          ? data.ambianceImage.map(img => typeof img === 'string'
+              ? `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`
+              : img)
+          : []
+      };
+
+      console.log('Transformed data:', restaurantData); // Debug log
+      setRestaurant(restaurantData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching restaurant details:', error);
+      handleError(error);
+    }
+  };
+
+  // Add interceptor to handle token expiration globally
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
         if (error.response && error.response.status === 401) {
-          // Token has expired, redirect to login page
           localStorage.removeItem('token');
           navigate('/login');
         }
-      } finally {
-        setLoading(false); // Set loading to false after fetching data
+        return Promise.reject(error);
       }
-    };
+    );
 
-    fetchRestaurant();
-  }, []);
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [navigate]);
 
   const addRestaurant = (newRestaurant) => {
     setRestaurant(newRestaurant);
@@ -71,7 +128,11 @@ const OwnerRestaurant = () => {
     }
   };
   if (loading) {
-    return <p>Loading...</p>; // Show loading message while fetching data
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
   return (

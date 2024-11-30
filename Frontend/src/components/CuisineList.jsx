@@ -1,6 +1,6 @@
 import React from 'react';
 
-const CuisineList = () => {
+const CuisineList = ({ onCuisineSelect, selectedCuisine }) => {
   const cuisines = [
     { name: 'Italian', img: 'src/assets/italian.jpg' }, 
     { name: 'Chinese', img: 'src/assets/chinese.jpg' }, 
@@ -17,10 +17,12 @@ const CuisineList = () => {
         {cuisines.map((cuisine) => (
           <div
             key={cuisine.name}
-            className="bg-gray-100 shadow-md p-4 m-2 rounded-lg cursor-pointer hover:bg-gray-200 flex items-center"
-            style={{ width: '20%' }} // Two items per row with some spacing
+            onClick={() => onCuisineSelect(cuisine.name)}
+            className={`bg-gray-100 shadow-md p-4 m-2 rounded-lg cursor-pointer hover:bg-gray-200 flex items-center
+              ${selectedCuisine === cuisine.name ? 'border-2 border-orange-500' : ''}`}
+            style={{ width: '20%' }}
           >
-            <img src={cuisine.img} alt={cuisine.name} className="w-12 h-12 mr-2 rounded-full" /> {/* Placeholder for images */}
+            <img src={cuisine.img} alt={cuisine.name} className="w-12 h-12 mr-2 rounded-full" />
             <div className="ml-3">
               {cuisine.name}
             </div>

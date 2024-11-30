@@ -3,7 +3,7 @@ import immm from "../assets/italian.jpg";
 import Header from '../components/Header';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
-
+import toast from 'react-hot-toast';
 export default function Reservation() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -179,11 +179,11 @@ export default function Reservation() {
         );
       }
       
-      alert(existingReservation ? 'Reservation updated successfully!' : 'Booking successful!');
+      existingReservation ? toast.success('Reservation updated successfully!') : toast.success('Booking successful!');
       navigate('/bookings');
     } catch (error) {
       console.error('Error:', error);
-      alert(error.response?.data?.message || 'Error import.metaing reservation');
+      toast.error(error.response?.data?.message || 'Error import.metaing reservation');
     }
   };
 

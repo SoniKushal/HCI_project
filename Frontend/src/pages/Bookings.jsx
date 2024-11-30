@@ -18,7 +18,7 @@ const Bookings = () => {
 
   const fetchBookings = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/reservation/user-reservations', {
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/reservation/user-reservations`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBookings(response.data.reservations);
@@ -29,7 +29,7 @@ const Bookings = () => {
 
   const handleCancel = async (reservationId) => {
     try {
-      await axios.delete(`http://localhost:4000/reservation/deleteReservation/${reservationId}`, {
+      await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/reservation/deleteReservation/${reservationId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchBookings(); // Refresh bookings after cancellation
@@ -50,7 +50,7 @@ const Bookings = () => {
     e.preventDefault();
     try {
       await axios.post(
-        'http://localhost:4000/restaurant/review',
+        `${import.meta.env.VITE_BACKEND_URL}/restaurant/review`,
         {
           restaurantId: selectedBooking.restaurantId._id,
           rating: review.rating,

@@ -55,7 +55,7 @@ export default function Reservation() {
   useEffect(() => {
     const fetchRestaurant = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/restaurant/${id}`,{
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/restaurant/${id}`,{
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -113,7 +113,7 @@ export default function Reservation() {
       }
 
       const response = await axios.post(
-        'http://localhost:4000/reservation/checkAvailability', 
+        `${import.meta.env.VITE_BACKEND_URL}/reservation/checkAvailability`, 
         {
           restaurantId: id,
           date: selectedDate,
@@ -150,7 +150,7 @@ export default function Reservation() {
     try {
       if (existingReservation) {
         await axios.put(
-          `http://localhost:4000/reservation/updateReservation/${existingReservation._id}`,
+          `${import.meta.env.VITE_BACKEND_URL}/reservation/updateReservation/${existingReservation._id}`,
           {
             updates: {
               date: selectedDate,
@@ -165,7 +165,7 @@ export default function Reservation() {
         );
       } else {
         await axios.post(
-          'http://localhost:4000/reservation/createReservation',
+          `${import.meta.env.VITE_BACKEND_URL}/reservation/createReservation`,
           {
             restaurantId: id,
             date: selectedDate,
@@ -183,7 +183,7 @@ export default function Reservation() {
       navigate('/bookings');
     } catch (error) {
       console.error('Error:', error);
-      alert(error.response?.data?.message || 'Error processing reservation');
+      alert(error.response?.data?.message || 'Error import.metaing reservation');
     }
   };
 
@@ -260,7 +260,7 @@ export default function Reservation() {
           <div className="relative">
             <div className="relative h-[400px] w-full">
               <img
-                src={`http://localhost:4000/restaurant/images/${restaurant.restaurantData.image[0]}`}
+                src={`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${restaurant.restaurantData.image[0]}`}
                 alt={restaurant.restaurantData.name}
                 className="object-cover w-full h-full"
               />
@@ -324,7 +324,7 @@ export default function Reservation() {
                   {restaurant.restaurantData.menuImage.map((menuImg, index) => (
                     <div key={index} className="bg-white rounded-lg shadow overflow-hidden">
                       <img
-                        src={`http://localhost:4000/restaurant/images/${menuImg}`}
+                        src={`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${menuImg}`}
                         alt={`Menu page ${index + 1}`}
                         className="w-full h-auto"
                       />
@@ -338,7 +338,7 @@ export default function Reservation() {
                   {restaurant.restaurantData.image.map((photo, index) => (
                     <div key={index} className="bg-white rounded-lg shadow overflow-hidden">
                       <img
-                        src={`http://localhost:4000/restaurant/images/${photo}`}
+                        src={`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${photo}`}
                         alt={`Restaurant photo ${index + 1}`}
                         className="w-full h-64 object-cover"
                       />

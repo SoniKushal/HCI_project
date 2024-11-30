@@ -33,14 +33,15 @@ const OwnerDashboard = () => {
   const fetchRestaurants = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:4000/restaurant/allRestaurant', {
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/restaurant/allRestaurant`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       })
+
       const restaurantData = res.data.restaurantData.map(restaurant => ({
         ...restaurant,
-        imageUrl: `http://localhost:4000/restaurant/images/${restaurant.image}`// URL for the first image
+        imageUrl: `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${restaurant.image}`// URL for the first image
       }));
       setRestaurants(restaurantData);
       setFilteredRestaurants(restaurantData);
@@ -66,14 +67,14 @@ const OwnerDashboard = () => {
     if(query) {
        try {
          const token = localStorage.getItem('token');
-         const res = await axios.get(`http://localhost:4000/restaurant/searchRestaurant?name=${query}`, {
+         const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/restaurant/searchRestaurant?name=${query}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
         const searchResults = res.data.restaurants.map(restaurant => ({
             ...restaurant,
-            imageUrl: `http://localhost:4000/restaurant/images/${restaurant.image}`
+            imageUrl: `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${restaurant.image}`
         }))
         setFilteredRestaurants(searchResults);
         } catch (err) {

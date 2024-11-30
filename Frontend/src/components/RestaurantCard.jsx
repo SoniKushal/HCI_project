@@ -1,14 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const RestaurantCard = ({ id, name, address, imageUrl, isOwner = false }) => {
+const RestaurantCard = ({ restaurantId, name, address, imageUrl, isOwner = false }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
     if (isOwner) {
-      navigate(`/ownerrestaurant/${id}`);
+      navigate(`/ownerrestaurant/${restaurantId}`);
     } else {
-      navigate(`/reservations/${id}`);
+      navigate(`/reservations/${restaurantId}`);
     }
   };
 

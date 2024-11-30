@@ -17,7 +17,7 @@ export default function Component() {
 
     const fetchProfile = async () => {
       try {
-        const response = await fetch('http://localhost:4000/auth/profile', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/profile`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -62,7 +62,7 @@ export default function Component() {
       setError('')
 
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:4000/auth/profile', {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

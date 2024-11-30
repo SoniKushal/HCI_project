@@ -71,7 +71,7 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
         ambienceImages.map(async (img) => {
           if (img instanceof File) return img;
           // Convert non-File type image to File
-          return await urlToFile(`http://localhost:4000/restaurant/images/${img}`, img, 'image/jpeg');
+          return await urlToFile(`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`, img, 'image/jpeg');
         })
       );
   
@@ -79,11 +79,11 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
         formData.append('image', file);
       });
   
-      // Process menu images similarly
+      // import.meta menu images similarly
       const menuImageFiles = await Promise.all(
         menuImages.map(async (img) => {
           if (img instanceof File) return img;
-          return await urlToFile(`http://localhost:4000/restaurant/images/${img}`, img, 'image/jpeg');
+          return await urlToFile(`${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`, img, 'image/jpeg');
         })
       );
   
@@ -92,8 +92,8 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
       });
 
       const endpoint = isEditing
-        ? `http://localhost:4000/restaurant/updateRestaurant/${restaurantData._id}`
-        : 'http://localhost:4000/restaurant/addRestaurant';
+        ? `${import.meta.env.VITE_BACKEND_URL}/restaurant/updateRestaurant/${restaurantData._id}`
+        : `${import.meta.env.VITE_BACKEND_URL}/restaurant/addRestaurant`;
 
       const method = isEditing ? 'PUT' : 'POST';
 
@@ -109,7 +109,7 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
         const resData = await response.json();
         const newRestaurant = {
           ...resData.restaurant,
-          imageUrl: `http://localhost:4000/restaurant/images/${resData.restaurant.image[0]}`,
+          imageUrl: `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${resData.restaurant.image[0]}`,
         };
 
         // if (isEditing) {
@@ -225,7 +225,7 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
                     {ambienceImages.map((file, index) => (
                       <li key={index} className="text-sm text-gray-600">
                         <img
-                          src={file instanceof File ? URL.createObjectURL(file) : `http://localhost:4000/restaurant/images/${file}`} // Use URL for existing images
+                          src={file instanceof File ? URL.createObjectURL(file) : `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${file}`} // Use URL for existing images
                           alt={`Ambience ${index + 1}`}
                           className="w-full h-24 object-cover rounded"
                         />
@@ -369,7 +369,7 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
                     {menuImages.map((file, index) => (
                       <li key={index} className="text-sm text-gray-600">
                         <img
-                          src={file instanceof File ? URL.createObjectURL(file) : `http://localhost:4000/restaurant/images/${file}`} // Use URL for existing images
+                          src={file instanceof File ? URL.createObjectURL(file) : `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${file}`} // Use URL for existing images
                           alt={`Menu ${index + 1}`}
                           className="w-full h-24 object-cover rounded"
                         />

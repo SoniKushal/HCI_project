@@ -90,7 +90,9 @@ const LoginPage = () => {
     if (!validateFields()) return;
   
     try {
-      const response = await fetch('http://localhost:4000/auth/login', {
+    
+      
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -204,7 +206,7 @@ const LoginPage = () => {
             <button
               type="button"
               onClick={() => {
-                window.location.href = `http://localhost:4000/auth/google?type=${formData.isOwner}`;
+                window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google?type=${formData.isOwner}`;
               }}
               className="flex items-center justify-center w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
             >

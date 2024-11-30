@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import Header from "../components/OwnerHeader";
 import Sidebar from "../components/Sidebar";
 
@@ -96,6 +96,21 @@ const OwnerProfile = () => {
     setIsModalOpen(false);
   };
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsSidebarOpen(false); // Sidebar open by default for larger screens
+      } else {
+        setIsSidebarOpen(true); // Sidebar hidden by default for smaller screens
+      }
+    };
+
+    handleResize(); // Set the initial state
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <>
       <Header toggleSidebar={toggleSidebar} />
@@ -168,19 +183,20 @@ const OwnerProfile = () => {
         {/* Profile Photo Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg shadow-lg p-6 w-3/4 max-w-md">
-                <div className="max-w-3xl mb-2 w-full relative">
+            <div className=" bg-white rounded-lg shadow-lg p-6 w-3/4 max-w-md">
+                <div className="flex max-w-3xl mb-4 w-full justify-center items-center">
+                    <h2 className="text-md md:text-lg font-semibold self-center">
+                      Choose Your Profile Picture
+                    </h2>
                     <button
                         type="button"
                         onClick={() => setIsModalOpen(false)}
-                        className="absolute text-xl font-semibold top-2 right-2 text-gray-600 hover:scale-110 hover:delay-100 hover:text-red-600"
+                        className="text-lg font-semibold right-2 ml-4 md:ml-20 text-gray-600 hover:scale-110 hover:delay-100 hover:text-red-600"
                     >
                         ✕
                     </button>
+                    
                 </div>
-              <h2 className="text-lg font-semibold text-center mb-4">
-                Choose Your Profile Picture
-              </h2>
               <div className="grid grid-cols-3 gap-4">
                 {availableProfilePhotos.map((photoUrl, index) => (
                   <img

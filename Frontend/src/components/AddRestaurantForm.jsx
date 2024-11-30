@@ -296,14 +296,14 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
 
             {/* Opening / Closing Hours */}
             <div className="mb-4 flex space-x-4">
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col">
                 <label className="block mb-2 text-xl">Opening Hours:</label>
                 <input type="time" value={`${openingHours.openHour}:${openingHours.openMinute}`} onChange={(e) => {
                   const [hour, minute] = e.target.value.split(':');
                   setOpeningHours((prev) => ({ ...prev, openHour: hour, openMinute: minute }));
                 }} required />
               </div>
-              <div className="flex flex-col w-full">
+              <div className="flex flex-col ">
                 <label className="block mb-2 text-xl">Closing Hours:</label>
                 <input type="time" value={`${openingHours.closeHour}:${openingHours.closeMinute}`} onChange={(e) => {
                   const [hour, minute] = e.target.value.split(':');

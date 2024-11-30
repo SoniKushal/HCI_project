@@ -11,6 +11,21 @@ input[type="date"]::-webkit-calendar-picker-indicator{
   filter: invert(24%) sepia(96%) saturate(4470%) hue-rotate(351deg) brightness(92%) contrast(89%);
 }
 
+
+@media (min-width: 1024px) {
+  .flex > div {
+    min-width: calc(100% / 5); /* Show only five cards at a time */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+}
+
+@media (max-width: 640px) {
+  .flex > div {
+    min-width: calc(100% / 3); /* Show only three cards at a time */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+}
+
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

@@ -1,4 +1,5 @@
 import React from 'react';
+import Slider from 'react-slick';
 
 const CuisineList = () => {
   const cuisines = [
@@ -18,7 +19,7 @@ const CuisineList = () => {
           <div
             key={cuisine.name}
             className="bg-gray-100 shadow-md p-4 m-2 rounded-lg cursor-pointer hover:bg-gray-200 flex items-center"
-            style={{ width: '20%' }} // Two items per row with some spacing
+            style={{ width: '10%' }} // Two items per row with some spacing
           >
             <img src={cuisine.img} alt={cuisine.name} className="w-12 h-12 mr-2 rounded-full" /> {/* Placeholder for images */}
             <div className="ml-3">

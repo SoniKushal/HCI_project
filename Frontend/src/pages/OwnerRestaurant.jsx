@@ -19,7 +19,57 @@ const OwnerRestaurant = () => {
   };
   const handleFormOpen = () => setIsFormOpen(true);
   const handleFormClose = () => setIsFormOpen(false);
+  const [bookings, setBookings] = useState([...Array(20)].map((_, index) => ({
+    id: index,
+    name: 'Sample Name',
+    phone: '1234567890',
+    bookingTime: '12:00 PM',
+    arrivalTime: '12:30 PM',
+    tables: '2x2p, 1x4p',
+    totalPeople: 8,
+  })));
 
+  const [cancelingBookingId, setCancelingBookingId] = useState(null);
+  const [cancellationReason, setCancellationReason] = useState('');
+
+  const handleCancelClick = (id) => {
+    setCancelingBookingId(id);
+    setCancellationReason(''); // Reset reason when opening modal
+  };
+
+  const handleConfirmCancel = () => {
+    const wordCount = cancellationReason.trim().split(/\s+/).length;
+    if (wordCount < 10) {
+      alert('Please provide at least 10 words for the cancellation reason.');
+      return;
+    }
+
+    setBookings(prevBookings => prevBookings.filter(booking => booking.id !== cancelingBookingId));
+    alert(`Booking ID ${cancelingBookingId} has been cancelled. Reason: ${cancellationReason}`);
+    
+    // Close the modal
+    setCancelingBookingId(null);
+  };
+
+  const handleCloseModal = () => {
+    setCancelingBookingId(null);
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsSidebarOpen(false); // Sidebar open by default for larger screens
+      } else {
+        setIsSidebarOpen(true); // Sidebar hidden by default for smaller screens
+      }
+    };
+
+    handleResize(); // Set the initial state
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  
   useEffect(() => {
     const fetchRestaurant = async () => {
       setLoading(true); // Set loading to true before fetching data
@@ -85,8 +135,52 @@ const OwnerRestaurant = () => {
       <main className="p-4 bg-gray-100 lg:ml-64 transition-all duration-300">
         <h1 className="text-xl font-bold mb-6">Restaurant Details</h1>
 
+        {/* Bookings Section */}
+        <h1 className="text-xl font-bold mb-6">Current Bookings</h1>
+        <div className="overflow-x-auto">
+          <div className="flex space-x-4 mb-4 mt-4">
+            {bookings.map((booking) => (
+              <div className="min-w-[250px] sm:min-w-[300px] lg:min-w-[350px]" key={booking.id}>
+                <BookingCard
+                  booking={booking}
+                  onCancel={() => handleCancelClick(booking.id)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Modal for cancellation confirmation */}
+        {cancelingBookingId !== null && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white p-5 rounded-md shadow-md">
+              <h2 className="text-lg font-bold mb-4">Confirm Cancellation</h2>
+              <textarea 
+                placeholder="Reason for cancellation (at least 10 words)"
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+                className="w-full border p-2 rounded mb-4"
+              />
+              <div className="flex justify-end">
+                <button 
+                  className="bg-red-500 text-white px-4 py-2 rounded mr-2"
+                  onClick={handleConfirmCancel}
+                >
+                  Cancel Booking
+                </button>
+                <button 
+                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                  onClick={handleCloseModal}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Restaurant Information Section */}
-        <div className="bg-white shadow-lg rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white my-4 shadow-lg rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {/* Left Column: Basic Info */}
           <div className="col-span-1">
             <h2 className="text-2xl font-bold mb-2">{restaurant.name}</h2>
@@ -139,23 +233,9 @@ const OwnerRestaurant = () => {
           </div>
         </div>
 
-        {/* Bookings Section */}
-        <div className="grid grid-cols-4 md:grid-cols-6 gap-4 mb-4 mt-4">
-          {/* Replace with real booking data if available */}
-          {[...Array(6)].map((_, index) => (
-            <BookingCard key={index} booking={{ id: index, name: 'Sample Name', phone: '1234567890', bookingTime: '12:00 PM', arrivalTime: '12:30 PM', tables: '2x2p, 1x4p', totalPeople: 8 }} />
-          ))}
-        </div>
-
-        {/* Ambience Image Slider */}
-        <div className='my-2 z-0'>
-          <h2 className='text-2xl font-semibold'>Ambience Images</h2>
-          <Slider images={restaurant.image} slidesToShow={2} />
-        </div>
-
         {/* Cuisines Section */}
         <div className="my-8 px-2">
-          <h2 className="text-2xl mb-2">Cuisines</h2>
+          <h2 className="text-2xl mb-2 font-semibold">Cuisines</h2>
           <div className="flex items-center justify-center text-base">
             {restaurant.cuisines.map((cuisine) => (
 
@@ -172,8 +252,14 @@ const OwnerRestaurant = () => {
         </div>
 
         {/* Menu Image Slider */}
-        <h2 className='text-2xl font-semibold'>Menu</h2>
+        <h2 className='text-2xl font-semibold my-4'>Menu</h2>
         <Slider images={restaurant.menuImage} slidesToShow={3} />
+
+        {/* Ambience Image Slider */}
+        <div className='my-2 z-0'>
+          <h2 className='text-2xl font-semibold'>Ambience Images</h2>
+          <Slider images={restaurant.image} slidesToShow={2} />
+        </div>
       </main>
     </>
   );

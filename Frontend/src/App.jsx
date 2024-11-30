@@ -17,6 +17,7 @@ import ResetPassword from './pages/ResetPassword';
 import { AuthProvider } from './components/auth-context';
 import AuthMiddleware from './components/AuthMiddleware';
 import Bookings from './pages/Bookings';
+import OwnerBookings from './pages/OwnerBookings';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/addrestaurant" element={<AddRestaurantForm />} />
             <Route path="/ownerrestaurant/:restaurantId" element={<OwnerRestaurant />} />
             <Route path="/ownerprofile" element={<OwnerProfile />} />
+            <Route path="/ownerbookings" element={<OwnerBookings />} />
 
             {/* Shared Routes */}
             <Route path="/profile" element={<Profile />} />

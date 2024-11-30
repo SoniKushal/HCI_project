@@ -23,7 +23,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation Links Section */}
-      <nav className="flex flex-col space-y-10 mt-20"> {/* Increased spacing between links */}
+      <nav className="flex flex-col space-y-6 md:space-y-8 mt-14 md:mt-20"> {/* Increased spacing between links */}
         <Link 
           to="/ownerdashboard" 
           className={`flex items-center w-40 h-10 text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/ownerdashboard' || location.pathname === '/ownerrestaurant'  ? 'text-red-600 font-semibold border rounded-md border-2 border-red-600 ring-2 ring-red-600' : 'text-black'}`} // Highlight active link
@@ -43,10 +43,10 @@ const Sidebar = () => {
           <FaChartPie className="ml-6 mr-2" />Statistics
         </Link>
         <Link 
-          to="/products" 
-          className={`flex items-center w-40 h-10 text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/products' ? 'text-red-600' : 'text-black'}`}
+          to="/ownerbookings" 
+          className={`flex items-center w-40 h-10 text-xl hover:text-red-600 hover:font-semibold hover:delay-150 ${location.pathname === '/ownerbookings' ? 'text-red-600 font-semibold border rounded-md border-2 border-red-600 ring-2 ring-red-600' : 'text-black'}`}
         >
-          <FaBox className="ml-6 mr-2" /> Products
+          <FaBox className="ml-6 mr-2" /> Bookings
         </Link>
         <Link 
           to="/ownerprofile" 
@@ -57,7 +57,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Logout Section */}
-      <div className="mb-auto mt-32 pt-auto">
+      <div className="mb-auto mt-16 md:mt-32 pt-auto">
       <button 
           onClick={handleLogout}
           className="flex items-center text-black text-xl hover:font-semibold hover:delay-150 hover:text-red-500"

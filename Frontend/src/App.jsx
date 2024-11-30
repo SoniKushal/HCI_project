@@ -18,6 +18,7 @@ import { AuthProvider } from './components/auth-context';
 import AuthMiddleware from './components/AuthMiddleware';
 import Bookings from './pages/Bookings';
 import { Toaster } from 'react-hot-toast';
+import OwnerBookings from './pages/OwnerBookings';
 
 function App() {
   return (
@@ -57,11 +58,12 @@ function App() {
               <Route path="/reservations" element={<Reservation />} />
               <Route path="/reservations/:id" element={<Reservation />} />
 
-              {/* Owner Routes */}
-              <Route path="/ownerdashboard" element={<Dashboard />} />
-              <Route path="/addrestaurant" element={<AddRestaurantForm />} />
-              <Route path="/ownerrestaurant/:id" element={<OwnerRestaurant />} />
-              <Route path="/ownerprofile" element={<OwnerProfile />} />
+            {/* Owner Routes */}
+            <Route path="/ownerdashboard" element={<Dashboard />} />
+            <Route path="/addrestaurant" element={<AddRestaurantForm />} />
+            <Route path="/ownerrestaurant/:restaurantId" element={<OwnerRestaurant />} />
+            <Route path="/ownerprofile" element={<OwnerProfile />} />
+            <Route path="/ownerbookings" element={<OwnerBookings />} />
 
               {/* Shared Routes */}
               <Route path="/profile" element={<Profile />} />

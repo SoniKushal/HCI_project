@@ -14,7 +14,7 @@ const Header = ({ toggleSidebar, onSearch}) => {
       </button>
 
       {/* Search Input */}
-      <div className="relative mx-auto w-80 max-w-xs"> 
+      <div className="relative w-40 md:w-80 max-w-xs"> 
         <input
           type="text"
           placeholder="Search"
@@ -26,7 +26,7 @@ const Header = ({ toggleSidebar, onSearch}) => {
 
       {/* Notification and Profile Icons */}
       <div className="flex items-center justigy-between">
-        <div className="relative mx-[15px]">
+        <div className="relative ">
           <FaBell className="text-gray-600 w-[30px] h-[30px] cursor-pointer hover:text-red-500 " />
         </div>
         <div className="relative mx-auto">

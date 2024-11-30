@@ -30,6 +30,21 @@ const OwnerDashboard = () => {
     fetchRestaurants();
   }, [])
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsSidebarOpen(false); // Sidebar open by default for larger screens
+      } else {
+        setIsSidebarOpen(true); // Sidebar hidden by default for smaller screens
+      }
+    };
+
+    handleResize(); // Set the initial state
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const fetchRestaurants = async () => {
     try {
       const token = localStorage.getItem('token');

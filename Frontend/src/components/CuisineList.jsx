@@ -1,5 +1,4 @@
 import React from 'react';
-import Slider from 'react-slick';
 
 const CuisineList = ({ onCuisineSelect, selectedCuisine }) => {
   const cuisines = [
@@ -14,19 +13,17 @@ const CuisineList = ({ onCuisineSelect, selectedCuisine }) => {
   return (
     <div className="my-8 px-10">
       <h2 className="text-2xl mb-4">Popular Cuisines</h2>
-      <div className="flex items-center justify-center text-xl">
+      <div className="flex items-center justify-between text-xl overflow-x-auto">
         {cuisines.map((cuisine) => (
           <div
             key={cuisine.name}
-
             onClick={() => onCuisineSelect(cuisine.name)}
-            className={`bg-gray-100 shadow-md p-4 m-2 rounded-lg cursor-pointer hover:bg-gray-200 flex items-center
+            className={`bg-gray-100 shadow-md p-3 rounded-lg cursor-pointer hover:bg-gray-200 flex items-center flex-shrink-0 mx-2
               ${selectedCuisine === cuisine.name ? 'border-2 border-orange-500' : ''}`}
-            style={{ width: '20%' }}
-
+            style={{ minWidth: '160px' }}
           >
-            <img src={cuisine.img} alt={cuisine.name} className="w-12 h-12 mr-2 rounded-full" />
-            <div className="ml-3">
+            <img src={cuisine.img} alt={cuisine.name} className="w-10 h-10 rounded-full" />
+            <div className="ml-2 truncate">
               {cuisine.name}
             </div>
           </div>

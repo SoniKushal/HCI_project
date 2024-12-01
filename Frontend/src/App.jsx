@@ -61,7 +61,7 @@ function App() {
             {/* Owner Routes */}
             <Route path="/ownerdashboard" element={<Dashboard />} />
             <Route path="/addrestaurant" element={<AddRestaurantForm />} />
-            <Route path="/ownerrestaurant/:restaurantId" element={<OwnerRestaurant />} />
+            <Route path="/ownerrestaurant/:id" element={<OwnerRestaurant />} />
             <Route path="/ownerprofile" element={<OwnerProfile />} />
             <Route path="/ownerbookings" element={<OwnerBookings />} />
 

@@ -377,18 +377,46 @@ const getUserReservations = async (req, res) => {
       .populate('restaurantId', 'name') // Populate restaurant details
       .sort({ date: 1, time: 1 }); // Sort by date and time
 
-    res.status(200).json({
-      reservations: reservations.map(reservation => ({
+    // Filter out reservations with null restaurantId and map the rest
+    const validReservations = reservations
+      .filter(reservation => reservation.restaurantId != null)
+      .map(reservation => ({
         ...reservation.toObject(),
         restaurant: {
           name: reservation.restaurantId.name,
           id: reservation.restaurantId._id
         }
-      }))
+      }));
+
+    // Add cancelled/deleted restaurant info for null restaurantId
+    const allReservations = reservations.map(reservation => {
+      if (!reservation.restaurantId) {
+        return {
+          ...reservation.toObject(),
+          restaurant: {
+            name: 'Restaurant Unavailable',
+            id: null
+          }
+        };
+      }
+      return {
+        ...reservation.toObject(),
+        restaurant: {
+          name: reservation.restaurantId.name,
+          id: reservation.restaurantId._id
+        }
+      };
+    });
+
+    res.status(200).json({
+      reservations: allReservations
     });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: error.message });
+    console.error('Error in getUserReservations:', error);
+    res.status(400).json({ 
+      message: 'Error fetching reservations',
+      error: error.message 
+    });
   }
 };
 

@@ -299,23 +299,8 @@ export default function Reservation() {
                 </div>
               
               {activeTab === 'offers' && (
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h3 className="text-lg font-semibold mb-4">Sample Bill (Approx Discount)</h3>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span>Total Bill</span>
-                      <span>₹1200</span>
-                    </div>
-                    <div className="flex justify-between text-orange-500">
-                      <span>EazyDiner Discount</span>
-                      <span>-₹435</span>
-                    </div>
-                    <div className="flex justify-between font-semibold">
-                      <span>You Paid</span>
-                      <span>₹765</span>
-                    </div>
-                    <a href="#" className="text-blue-500">Calculate Your Exact Discount</a>
-                  </div>
+                <div>
+                  <h2 className="text-lg font-semibold mb-4">No Offers Currently Available</h2>
                 </div>
               )}
 

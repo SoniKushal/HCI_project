@@ -48,7 +48,7 @@ const Home = () => {
     let result = restaurants;
 
     // Filter by location
-    if (selectedLocation) {
+    if (selectedLocation && selectedLocation !== 'Select Location') {
       result = result.filter(restaurant => 
         restaurant.location.toLowerCase().includes(selectedLocation.toLowerCase())
       );
@@ -57,15 +57,28 @@ const Home = () => {
     // Filter by search term (restaurant name)
     if (searchTerm) {
       result = result.filter(restaurant =>
-        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase())
+        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        restaurant.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (Array.isArray(restaurant.cuisines) && restaurant.cuisines.some(cuisine =>
+          cuisine.toLowerCase().includes(searchTerm.toLowerCase())
+        ))
       );
     }
 
     // Filter by cuisine
     if (selectedCuisine) {
-      result = result.filter(restaurant =>
-        restaurant.cuisines.includes(selectedCuisine)
-      );
+      result = result.filter(restaurant => {
+        // Ensure cuisines is treated as an array
+        const cuisinesArray = Array.isArray(restaurant.cuisines) 
+          ? restaurant.cuisines 
+          : typeof restaurant.cuisines === 'string'
+            ? restaurant.cuisines.split(',').map(c => c.trim())
+            : [];
+            
+        return cuisinesArray.some(cuisine => 
+          cuisine.toLowerCase() === selectedCuisine.toLowerCase()
+        );
+      });
     }
 
     setFilteredRestaurants(result);

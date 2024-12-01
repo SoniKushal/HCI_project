@@ -3,12 +3,36 @@ import toast from 'react-hot-toast';
 
 const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }) => {
 
+  // Transform cuisines array when initializing state
+  const initializeCuisines = () => {
+    if (!restaurantData?.cuisines) return [];
+    
+    // If it's an array of strings in brackets format ["Italian", "Chinese"]
+    if (Array.isArray(restaurantData.cuisines)) {
+      return restaurantData.cuisines.map(cuisine => 
+        // Remove any quotes and brackets
+        cuisine.replace(/[\[\]"]/g, '').trim()
+      );
+    }
+    
+    // If it's a string, split by comma
+    if (typeof restaurantData.cuisines === 'string') {
+      // Remove brackets and quotes, then split
+      return restaurantData.cuisines
+        .replace(/[\[\]"]/g, '')
+        .split(',')
+        .map(cuisine => cuisine.trim());
+    }
+    
+    return [];
+  };
+
   const [name, setName] = useState(restaurantData?.name || '');
   const [location, setLocation] = useState(restaurantData?.location || '');
   const [ambienceImages, setAmbienceImages] = useState(restaurantData?.image || []);
   const [menuImages, setMenuImages] = useState(restaurantData?.menuImage || []);
   const [capacity, setCapacity] = useState(restaurantData?.capacity || { twoPerson: 0, fourPerson: 0, sixPerson: 0 });
-  const [cuisines, setCuisines] = useState(restaurantData?.cuisines || []);
+  const [cuisines, setCuisines] = useState(initializeCuisines());
   const [openingHours, setOpeningHours] = useState({
     openHour: restaurantData?.openingTime?.split(':')[0] || '00',
     openMinute: restaurantData?.openingTime?.split(':')[1] || '00',
@@ -38,11 +62,13 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
   };
 
   const handleToggleCuisine = (cuisine) => {
-    if (cuisines.includes(cuisine)) {
-      setCuisines(cuisines.filter(c => c !== cuisine));
-    } else {
-      setCuisines([...cuisines, cuisine]);
-    }
+    setCuisines(prevCuisines => {
+      if (prevCuisines.includes(cuisine)) {
+        return prevCuisines.filter(c => c !== cuisine);
+      } else {
+        return [...prevCuisines, cuisine];
+      }
+    });
   };
 
   const handleSubmitCuisines = () => {
@@ -62,7 +88,7 @@ const AddRestaurantForm = ({ onClose, addRestaurant, restaurantData, isEditing }
       formData.append('name', name);
       formData.append('location', location);
       formData.append('capacity', JSON.stringify(capacity));
-      formData.append('cuisines', JSON.stringify(cuisines)); // Stringify array
+      formData.append('cuisines', cuisines.join(','));
       formData.append('openingTime', `${openingHours.openHour}:${openingHours.openMinute}`);
       formData.append('closingTime', `${openingHours.closeHour}:${openingHours.closeMinute}`);
       formData.append('phoneNumber', phoneNumber);

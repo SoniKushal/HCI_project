@@ -10,6 +10,17 @@ import axios from 'axios';
 import { useAuth } from '../components/auth-context'; // Import useAuth
 import toast from 'react-hot-toast';
 
+
+// Add this cuisine image mapping
+const cuisineImages = {
+  'Italian': 'italian.jpg',
+  'Chinese': 'chinese.jpg',
+  'Indian': 'indian.jpg',
+  'Mexican': 'mexican.jpg',
+  'Japanese': 'japanese.jpg',
+  'South Indian': 'south-indian.jpg'
+};
+
 const OwnerRestaurant = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -98,36 +109,37 @@ const OwnerRestaurant = () => {
         }
       );
 
-      console.log('Raw response:', response.data); // Debug log
-
       if (!response.data || !response.data.restaurantData) {
         throw new Error('Invalid response data structure');
       }
 
       const data = response.data.restaurantData;
 
-      // Transform the data with proper URL construction
+      // Transform the data with proper URL construction and handle cuisines
       const restaurantData = {
         ...data,
-        // Handle both array and string cases for images
-        image: Array.isArray(data.image) 
-          ? data.image.map(img => typeof img === 'string' 
-              ? `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`
-              : img)
+        cuisines: Array.isArray(data.cuisines) 
+          ? data.cuisines 
+          : typeof data.cuisines === 'string'
+            ? data.cuisines.split(',').map(c => c.trim())
+            : [],
+        image: Array.isArray(data.image) && data.image.length > 0
+          ? data.image.map(img => img.startsWith('http') 
+              ? img 
+              : `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`)
           : [],
-        menuImage: Array.isArray(data.menuImage)
-          ? data.menuImage.map(img => typeof img === 'string'
-              ? `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`
-              : img)
+        menuImage: Array.isArray(data.menuImage) && data.menuImage.length > 0
+          ? data.menuImage.map(img => img.startsWith('http')
+              ? img
+              : `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`)
           : [],
-        ambianceImage: Array.isArray(data.ambianceImage)
-          ? data.ambianceImage.map(img => typeof img === 'string'
-              ? `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`
-              : img)
-          : []
+        ambianceImage: Array.isArray(data.ambianceImage) && data.ambianceImage.length > 0
+          ? data.ambianceImage.map(img => img.startsWith('http')
+              ? img
+              : `${import.meta.env.VITE_BACKEND_URL}/restaurant/images/${img}`)
+          : [],
       };
 
-      console.log('Transformed data:', restaurantData); // Debug log
       setRestaurant(restaurantData);
       setLoading(false);
     } catch (error) {
@@ -211,35 +223,6 @@ const OwnerRestaurant = () => {
           </div>
         </div>
 
-        {/* Modal for cancellation confirmation */}
-        {cancelingBookingId !== null && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-5 rounded-md shadow-md">
-              <h2 className="text-lg font-bold mb-4">Confirm Cancellation</h2>
-              <textarea 
-                placeholder="Reason for cancellation (at least 10 words)"
-                value={cancellationReason}
-                onChange={(e) => setCancellationReason(e.target.value)}
-                className="w-full border p-2 rounded mb-4"
-              />
-              <div className="flex justify-end">
-                <button 
-                  className="bg-red-500 text-white px-4 py-2 rounded mr-2"
-                  onClick={handleConfirmCancel}
-                >
-                  Cancel Booking
-                </button>
-                <button 
-                  className="bg-gray-300 text-black px-4 py-2 rounded"
-                  onClick={handleCloseModal}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Restaurant Information Section */}
         <div className="bg-white my-4 shadow-lg rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {/* Left Column: Basic Info */}
@@ -297,30 +280,43 @@ const OwnerRestaurant = () => {
         {/* Cuisines Section */}
         <div className="my-8 px-2">
           <h2 className="text-2xl mb-2 font-semibold">Cuisines</h2>
-          <div className="flex items-center justify-center text-base">
-            {restaurant.cuisines.map((cuisine) => (
-
+          <div className="flex items-center justify-start gap-4 overflow-x-auto">
+            {restaurant.cuisines && restaurant.cuisines.map((cuisine) => (
               <div
-                key={cuisine.name}
-                className="bg-white shadow-md p-4 m-2 rounded-lg cursor-pointer hover:bg-gray-200 flex items-center justify-between"
-                style={{ width: '20%' }} // Two items per row with some spacing
+                key={cuisine}
+                className="bg-white shadow-md p-4 rounded-lg flex items-center flex-shrink-0"
+                style={{ minWidth: '200px' }}
               >
-                <img src={`../src/assets/${cuisine}.jpg`} alt={cuisine} className="w-12 h-12 mr-2 rounded-full" /> {/* Placeholder for images */}
-                <div className="mx-2">{cuisine}</div>
+                <img 
+                  src={`/src/assets/${cuisineImages[cuisine] || 'default-cuisine.jpg'}`} 
+                  alt={cuisine} 
+                  className="w-12 h-12 rounded-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/src/assets/default-cuisine.jpg';
+                  }}
+                />
+                <div className="ml-3 font-medium">{cuisine}</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Menu Image Slider */}
-        <h2 className='text-2xl font-semibold my-4'>Menu</h2>
-        <Slider images={restaurant.menuImage} slidesToShow={3} />
+        {restaurant.menuImage && restaurant.menuImage.length > 0 && (
+          <>
+            <h2 className='text-2xl font-semibold my-4'>Menu</h2>
+            <Slider images={restaurant.menuImage} slidesToShow={3} />
+          </>
+        )}
 
         {/* Ambience Image Slider */}
-        <div className='my-2 z-0'>
-          <h2 className='text-2xl font-semibold'>Ambience Images</h2>
-          <Slider images={restaurant.image} slidesToShow={2} />
-        </div>
+        {restaurant.image && restaurant.image.length > 0 && (
+          <div className='my-2 z-0'>
+            <h2 className='text-2xl font-semibold'>Ambience Images</h2>
+            <Slider images={restaurant.image} slidesToShow={2} />
+          </div>
+        )}
       </main>
     </>
   );
